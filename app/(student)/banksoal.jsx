@@ -29,13 +29,18 @@ export default function BankSoalScreen() {
   const myScores = getUserScores(user?.id || '');
   const completedIds = new Set(myScores.map((sc) => sc.quizId));
 
-  // Grade filtering — keep 100% intact
   const myGrade = user?.grade || null;
   const gradeSubjects = myGrade
     ? subjects.filter((sub) => !sub.grade || sub.grade === myGrade)
     : subjects;
-  const gradeSubjectIds = new Set(gradeSubjects.map((sub) => sub.id));
-  const gradeQuizzes = quizzes.filter((q) => gradeSubjectIds.has(q.subjectId));
+  const enrolledIds = user?.enrolledSubjects || [];
+  const gradeSubjectIds = new Set([
+    ...enrolledIds,
+    ...gradeSubjects.map((sub) => sub.id),
+  ]);
+  const gradeQuizzes = quizzes.filter(
+    (q) => gradeSubjectIds.has(q.subjectId) && (q.type ?? 'practice') === 'practice'
+  );
 
   const filtered = useMemo(() => {
     return gradeQuizzes.filter((q) => {

@@ -88,7 +88,7 @@ const InfoRow = ({ label, value, isLast }) => {
 // ---------------------------------------------------------------------------
 
 export default function ProfileScreen() {
-  const { colors, isDark } = useTheme();
+  const { colors, isDark, toggleTheme } = useTheme();
   const s = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
 
   const { user, logout } = useAuth();
@@ -231,6 +231,11 @@ export default function ProfileScreen() {
           <InfoRow label="ID Pengguna" value={`#${user?.id}`} isLast />
         </View>
 
+        {/* Theme Toggle */}
+        <TouchableOpacity style={[s.navBtn, { borderColor: colors.accent + '55' }]} onPress={toggleTheme}>
+          <Text style={[s.navBtnText, { color: colors.accent }]}>{isDark ? '☀️ Mode Terang' : '🌙 Mode Gelap'}</Text>
+        </TouchableOpacity>
+
         {/* Logout */}
         <TouchableOpacity style={s.logoutBtn} onPress={confirmLogout}>
           <Text style={s.logoutText}>🚪  Keluar</Text>
@@ -371,7 +376,18 @@ const makeStyles = (c, isDark) =>
       ...(isDark ? {} : getShadow(isDark).sm),
     },
 
-    // Logout
+    // Theme toggle & Logout
+    navBtn: {
+      backgroundColor: c.bgCard,
+      borderRadius: radius.md,
+      paddingVertical: spacing.md,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: c.border,
+      marginBottom: spacing.sm,
+      ...(isDark ? {} : getShadow(isDark).sm),
+    },
+    navBtnText: { color: c.accent, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     logoutBtn: {
       backgroundColor: c.danger + '18',
       borderRadius: radius.md,

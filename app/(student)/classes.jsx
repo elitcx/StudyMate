@@ -272,7 +272,7 @@ const makeStyles = (c, isDark) => {
     },
     filterBtnActive: { backgroundColor: c.accent, borderColor: c.accent },
     filterText: { color: c.textMuted, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
-    filterTextActive: { color: '#ffffff', fontWeight: fontWeight.bold },
+    filterTextActive: { color: c.white, fontWeight: fontWeight.bold },
 
     searchBox: {
       flexDirection: 'row', alignItems: 'center',

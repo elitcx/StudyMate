@@ -19,7 +19,7 @@ export const Button = ({ onPress, label, loading = false, variant = 'primary', s
     : colors.bgElevated;
 
   const textColor =
-    ['primary', 'danger', 'success', 'admin'].includes(variant) ? '#fff'
+    ['primary', 'danger', 'success', 'admin'].includes(variant) ? colors.white
     : variant === 'ghost' ? colors.accent
     : colors.text;
 
@@ -243,7 +243,7 @@ export const ConfirmModal = ({ visible, title, message, onConfirm, onCancel, dan
               <Text style={{ color: colors.textMuted, fontSize: fontSize.md, fontWeight: fontWeight.semibold }}>Batal</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flex: 1, paddingVertical: spacing.md, borderRadius: radius.md, backgroundColor: danger ? colors.danger : colors.accent, alignItems: 'center' }} onPress={onConfirm}>
-              <Text style={{ color: '#fff', fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{danger ? 'Hapus' : 'Konfirmasi'}</Text>
+              <Text style={{ color: colors.white, fontSize: fontSize.md, fontWeight: fontWeight.bold }}>{danger ? 'Hapus' : 'Konfirmasi'}</Text>
             </TouchableOpacity>
           </View>
         </Pressable>

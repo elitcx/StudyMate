@@ -144,7 +144,7 @@ const makeStyles = (c, isDark) => {
       justifyContent: 'center',
     },
     primaryBtnText: {
-      color: '#ffffff',
+      color: c.white,
       fontSize: fontSize.md,
       fontWeight: fontWeight.bold,
     },

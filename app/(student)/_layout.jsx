@@ -1,7 +1,8 @@
 import { Tabs, Redirect } from 'expo-router';
 import { Text } from 'react-native';
 import { useAuth } from '../../src/contexts/AuthContext';
-import { colors, fontSize } from '../../utils/theme';
+import { useTheme } from '../../src/contexts/ThemeContext';
+import { fontSize } from '../../utils/theme';
 
 const TabIcon = ({ emoji, focused }) => (
   <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>
@@ -9,6 +10,8 @@ const TabIcon = ({ emoji, focused }) => (
 
 export default function StudentLayout() {
   const { user } = useAuth();
+  const { colors } = useTheme();
+
   if (!user) return <Redirect href="/(auth)/login" />;
   if (user.role !== 'student') return <Redirect href="/" />;
 
@@ -48,7 +51,6 @@ export default function StudentLayout() {
         name="profile"
         options={{ title: 'Profil', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }}
       />
-      {/* Dynamic nested routes — hidden from tab bar */}
       <Tabs.Screen name="subject/[id]" options={{ href: null }} />
       <Tabs.Screen name="quiz/[id]" options={{ href: null }} />
       <Tabs.Screen name="test-materials" options={{ href: null }} />

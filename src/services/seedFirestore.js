@@ -30,6 +30,7 @@ const SEED_QUIZZES = [
   {
     id: 'q1', subjectId: 's1', title: 'Algebra Quiz 1',
     description: 'Test your knowledge of algebraic expressions.',
+    type: 'practice',
     duration: 15, totalMarks: 10, date: '2026-04-25', materialIds: ['m1', 'm3'],
     questions: [
       { id: 'qq1', text: 'What is 2x + 3 = 7? Find x.', options: ['x = 1', 'x = 2', 'x = 3', 'x = 4'], correct: 1 },
@@ -38,9 +39,10 @@ const SEED_QUIZZES = [
     ],
   },
   {
-    id: 'q2', subjectId: 's1', title: 'Calculus Basics Quiz',
-    description: 'Derivatives and integrals fundamentals.',
-    duration: 20, totalMarks: 10, date: '2026-05-10', materialIds: ['m2'],
+    id: 'q2', subjectId: 's1', title: 'Ujian Tengah Semester - Matematika',
+    description: 'Materi: Kalkulus Bab 1-3. Persiapkan dirimu dengan baik!',
+    type: 'exam',
+    duration: 90, totalMarks: 100, date: '2026-05-10', materialIds: ['m2'],
     questions: [
       { id: 'qq6', text: 'What is the derivative of x²?', options: ['x', '2x', 'x³/3', '2'], correct: 1 },
       { id: 'qq7', text: 'What is the integral of 2x?', options: ['2', 'x²', 'x² + C', '2x²'], correct: 2 },
@@ -49,6 +51,7 @@ const SEED_QUIZZES = [
   {
     id: 'q3', subjectId: 's2', title: "Newton's Laws Quiz",
     description: 'Test understanding of the three laws of motion.',
+    type: 'practice',
     duration: 10, totalMarks: 10, date: '2026-04-30', materialIds: ['m4'],
     questions: [
       { id: 'qq9',  text: "Newton's First Law is about:", options: ['Force = mass × acceleration', 'Inertia', 'Action and reaction', 'Gravity'], correct: 1 },
@@ -56,9 +59,10 @@ const SEED_QUIZZES = [
     ],
   },
   {
-    id: 'q4', subjectId: 's3', title: 'Chemistry Elements Quiz',
-    description: 'Knowledge of the periodic table and elements.',
-    duration: 15, totalMarks: 10, date: '2026-05-05', materialIds: ['m6', 'm7'],
+    id: 'q4', subjectId: 's3', title: 'Ujian Akhir Semester - Kimia',
+    description: 'Mencakup materi Kimia Organik dan Anorganik. Pelajari tabel periodik!',
+    type: 'exam',
+    duration: 120, totalMarks: 100, date: '2026-05-05', materialIds: ['m6', 'm7'],
     questions: [
       { id: 'qq12', text: 'What is the chemical symbol for Gold?', options: ['Go', 'Gd', 'Au', 'Ag'], correct: 2 },
       { id: 'qq13', text: "Water's chemical formula is:", options: ['HO', 'H₂O', 'H₂O₂', 'HO₂'], correct: 1 },

@@ -1,12 +1,31 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { useData } from '../../src/contexts/DataContext';
-import { colors, spacing, fontSize, fontWeight, radius } from '../../utils/theme';
+import { useTheme } from '../../src/contexts/ThemeContext';
+import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
+
+const StatBox = ({ s, label, value, icon, color }) => (
+  <View style={[s.statBox, { borderTopColor: color, borderTopWidth: 3 }]}>
+    <Text style={{ fontSize: 20, marginBottom: 4 }}>{icon}</Text>
+    <Text style={[s.statValue, { color }]}>{value}</Text>
+    <Text style={s.statLabel}>{label}</Text>
+  </View>
+);
+
+const InfoRow = ({ s, label, value, isLast }) => (
+  <View style={[s.infoRow, !isLast && s.infoRowBorder]}>
+    <Text style={s.infoLabel}>{label}</Text>
+    <Text style={s.infoValue}>{value}</Text>
+  </View>
+);
 
 export default function AdminProfile() {
+  const { colors, isDark, toggleTheme } = useTheme();
+  const s = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
+
   const { user, logout } = useAuth();
   const { subjects, materials, quizzes, scores } = useData();
   const router = useRouter();
@@ -19,111 +38,101 @@ export default function AdminProfile() {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-        <View style={styles.avatarSection}>
-          <View style={[styles.avatarWrap, { backgroundColor: colors.admin + '22', borderColor: colors.admin + '55' }]}>
-            <Text style={styles.avatarEmoji}>{user?.avatar}</Text>
+    <SafeAreaView style={s.safe}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+        <View style={s.avatarSection}>
+          <View style={[s.avatarWrap, { backgroundColor: colors.admin + '22', borderColor: colors.admin + '55' }]}>
+            <Text style={s.avatarEmoji}>{user?.avatar}</Text>
           </View>
-          <Text style={styles.name}>{user?.name}</Text>
-          <Text style={styles.email}>{user?.email}</Text>
-          <View style={[styles.roleBadge, { backgroundColor: colors.admin + '22', borderColor: colors.admin + '44' }]}>
-            <Text style={[styles.roleText, { color: colors.admin }]}>👩‍🏫 Admin</Text>
+          <Text style={s.name}>{user?.name}</Text>
+          <Text style={s.email}>{user?.email}</Text>
+          <View style={[s.roleBadge, { backgroundColor: colors.admin + '22', borderColor: colors.admin + '44' }]}>
+            <Text style={[s.roleText, { color: colors.admin }]}>👩‍🏫 Admin</Text>
           </View>
         </View>
 
-        <View style={styles.statsGrid}>
-          <StatBox label="Kelas Dibuat" value={subjects.length} icon="📚" color={colors.admin} />
-          <StatBox label="Materi Dibuat" value={materials.length} icon="📄" color={colors.accent} />
-          <StatBox label="Kuis Dibuat" value={quizzes.length} icon="✏️" color={colors.success} />
-          <StatBox label="Total Pengerjaan" value={scores.length} icon="📊" color={colors.warning} />
+        <View style={s.statsGrid}>
+          <StatBox s={s} label="Kelas Dibuat" value={subjects.length} icon="📚" color={colors.admin} />
+          <StatBox s={s} label="Materi Dibuat" value={materials.length} icon="📄" color={colors.accent} />
+          <StatBox s={s} label="Kuis Dibuat" value={quizzes.length} icon="✏️" color={colors.success} />
+          <StatBox s={s} label="Total Pengerjaan" value={scores.length} icon="📊" color={colors.warning} />
         </View>
 
-        <Text style={styles.sectionTitle}>Info Akun</Text>
-        <View style={styles.infoCard}>
-          <InfoRow label="Nama" value={user?.name} />
-          <InfoRow label="Email" value={user?.email} />
-          <InfoRow label="Peran" value="Admin" />
-          <InfoRow label="ID Pengguna" value={`#${user?.id}`} isLast />
+        <Text style={s.sectionTitle}>Info Akun</Text>
+        <View style={s.infoCard}>
+          <InfoRow s={s} label="Nama" value={user?.name} />
+          <InfoRow s={s} label="Email" value={user?.email} />
+          <InfoRow s={s} label="Peran" value="Admin" />
+          <InfoRow s={s} label="ID Pengguna" value={`#${user?.id}`} isLast />
         </View>
 
-        <Text style={styles.sectionTitle}>Aksi Cepat</Text>
+        <Text style={s.sectionTitle}>Aksi Cepat</Text>
         {[
           { label: '➕ Buat Kelas Baru', onPress: () => router.push('/(admin)/create-class'), color: colors.admin },
           { label: '✏️ Buat Kuis Baru', onPress: () => router.push('/(admin)/quizzes'), color: colors.accent },
         ].map((a) => (
-          <TouchableOpacity key={a.label} style={[styles.actionBtn, { borderColor: a.color + '55' }]} onPress={a.onPress}>
-            <Text style={[styles.actionBtnText, { color: a.color }]}>{a.label}</Text>
+          <TouchableOpacity key={a.label} style={[s.actionBtn, { borderColor: a.color + '55' }]} onPress={a.onPress}>
+            <Text style={[s.actionBtnText, { color: a.color }]}>{a.label}</Text>
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={styles.logoutBtn} onPress={confirmLogout}>
-          <Text style={styles.logoutText}>🚪  Keluar</Text>
+        <TouchableOpacity style={[s.actionBtn, { borderColor: colors.accent + '55' }]} onPress={toggleTheme}>
+          <Text style={[s.actionBtnText, { color: colors.accent }]}>{isDark ? '☀️ Mode Terang' : '🌙 Mode Gelap'}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={s.logoutBtn} onPress={confirmLogout}>
+          <Text style={s.logoutText}>🚪  Keluar</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const StatBox = ({ label, value, icon, color }) => (
-  <View style={[styles.statBox, { borderTopColor: color, borderTopWidth: 3 }]}>
-    <Text style={{ fontSize: 20, marginBottom: 4 }}>{icon}</Text>
-    <Text style={[styles.statValue, { color }]}>{value}</Text>
-    <Text style={styles.statLabel}>{label}</Text>
-  </View>
-);
-
-const InfoRow = ({ label, value, isLast }) => (
-  <View style={[styles.infoRow, !isLast && styles.infoRowBorder]}>
-    <Text style={styles.infoLabel}>{label}</Text>
-    <Text style={styles.infoValue}>{value}</Text>
-  </View>
-);
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  avatarSection: { alignItems: 'center', marginBottom: spacing.xl },
-  avatarWrap: {
-    width: 88, height: 88, borderRadius: 44,
-    borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md,
-  },
-  avatarEmoji: { fontSize: 40 },
-  name: { color: colors.white, fontSize: fontSize.xxl, fontWeight: fontWeight.bold },
-  email: { color: colors.textMuted, fontSize: fontSize.sm, marginTop: 2 },
-  roleBadge: {
-    marginTop: spacing.sm, borderRadius: radius.full,
-    paddingHorizontal: spacing.md, paddingVertical: 4, borderWidth: 1,
-  },
-  roleText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.xl },
-  statBox: {
-    width: '47%', backgroundColor: colors.bgCard,
-    borderRadius: radius.md, borderWidth: 1, borderColor: colors.border,
-    padding: spacing.md, alignItems: 'center',
-  },
-  statValue: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
-  statLabel: { color: colors.textMuted, fontSize: fontSize.xs, marginTop: 2, textAlign: 'center' },
-  sectionTitle: { color: colors.white, fontSize: fontSize.lg, fontWeight: fontWeight.bold, marginBottom: spacing.md },
-  infoCard: {
-    backgroundColor: colors.bgCard, borderRadius: radius.md,
-    borderWidth: 1, borderColor: colors.border,
-    marginBottom: spacing.xl, overflow: 'hidden',
-  },
-  infoRow: { flexDirection: 'row', justifyContent: 'space-between', padding: spacing.md },
-  infoRowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
-  infoLabel: { color: colors.textMuted, fontSize: fontSize.sm },
-  infoValue: { color: colors.white, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
-  actionBtn: {
-    borderRadius: radius.md, paddingVertical: spacing.md,
-    alignItems: 'center', borderWidth: 1,
-    backgroundColor: colors.bgCard, marginBottom: spacing.sm,
-  },
-  actionBtnText: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
-  logoutBtn: {
-    marginTop: spacing.md, backgroundColor: colors.danger + '22', borderRadius: radius.md,
-    paddingVertical: spacing.md, alignItems: 'center',
-    borderWidth: 1, borderColor: colors.danger + '55',
-  },
-  logoutText: { color: colors.danger, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
-});
+const makeStyles = (c, isDark) =>
+  StyleSheet.create({
+    safe: { flex: 1, backgroundColor: c.bg },
+    scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
+    avatarSection: { alignItems: 'center', marginBottom: spacing.xl },
+    avatarWrap: {
+      width: 88, height: 88, borderRadius: 44,
+      borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md,
+    },
+    avatarEmoji: { fontSize: 40 },
+    name: { color: c.text, fontSize: fontSize.xxl, fontWeight: fontWeight.bold },
+    email: { color: c.textMuted, fontSize: fontSize.sm, marginTop: 2 },
+    roleBadge: {
+      marginTop: spacing.sm, borderRadius: radius.full,
+      paddingHorizontal: spacing.md, paddingVertical: 4, borderWidth: 1,
+    },
+    roleText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+    statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.xl },
+    statBox: {
+      width: '47%', backgroundColor: c.bgCard,
+      borderRadius: radius.md, borderWidth: 1, borderColor: c.border,
+      padding: spacing.md, alignItems: 'center',
+    },
+    statValue: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
+    statLabel: { color: c.textMuted, fontSize: fontSize.xs, marginTop: 2, textAlign: 'center' },
+    sectionTitle: { color: c.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold, marginBottom: spacing.md },
+    infoCard: {
+      backgroundColor: c.bgCard, borderRadius: radius.md,
+      borderWidth: 1, borderColor: c.border,
+      marginBottom: spacing.xl, overflow: 'hidden',
+    },
+    infoRow: { flexDirection: 'row', justifyContent: 'space-between', padding: spacing.md },
+    infoRowBorder: { borderBottomWidth: 1, borderBottomColor: c.border },
+    infoLabel: { color: c.textMuted, fontSize: fontSize.sm },
+    infoValue: { color: c.text, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    actionBtn: {
+      borderRadius: radius.md, paddingVertical: spacing.md,
+      alignItems: 'center', borderWidth: 1,
+      backgroundColor: c.bgCard, marginBottom: spacing.sm,
+    },
+    actionBtnText: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+    logoutBtn: {
+      marginTop: spacing.md, backgroundColor: c.danger + '22', borderRadius: radius.md,
+      paddingVertical: spacing.md, alignItems: 'center',
+      borderWidth: 1, borderColor: c.danger + '55',
+    },
+    logoutText: { color: c.danger, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+  });

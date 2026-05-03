@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   TextInput, Alert, KeyboardAvoidingView, Platform,
@@ -9,56 +9,59 @@ import { useData } from '../../src/contexts/DataContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
 import { spacing, fontSize, fontWeight, radius } from '../../utils/theme';
 
-export default function CreateQuizScreen() {
+export default function EditQuizScreen() {
   const { colors, isDark } = useTheme();
   const s = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
 
-  const { subjectId } = useLocalSearchParams();
-  const { subjects, materials, addQuiz } = useData();
+  const { quizId } = useLocalSearchParams();
+  const { subjects, materials, quizzes, updateQuiz } = useData();
   const router = useRouter();
 
-  const subject = subjects.find((su) => su.id === subjectId);
-  const subjectMaterials = materials.filter((m) => m.subjectId === subjectId);
+  const quiz = quizzes.find((q) => q.id === quizId);
+  const subject = quiz ? subjects.find((su) => su.id === quiz.subjectId) : null;
+  const subjectMaterials = quiz ? materials.filter((m) => m.subjectId === quiz.subjectId) : [];
 
-  const [quizType, setQuizType] = useState('practice'); // 'exam' | 'practice'
-  const [quizTitle, setQuizTitle] = useState('');
-  const [quizDesc, setQuizDesc] = useState('');
-  const [duration, setDuration] = useState('15');
-  const [totalMarks, setTotalMarks] = useState('10');
-  const [testDate, setTestDate] = useState('');
+  const [quizType,         setQuizType]         = useState('practice');
+  const [quizTitle,        setQuizTitle]        = useState('');
+  const [quizDesc,         setQuizDesc]         = useState('');
+  const [duration,         setDuration]         = useState('15');
+  const [totalMarks,       setTotalMarks]       = useState('10');
+  const [testDate,         setTestDate]         = useState('');
   const [selectedMaterials, setSelectedMaterials] = useState([]);
+  const [questions,        setQuestions]        = useState([]);
+  const [qText,            setQText]            = useState('');
+  const [qOptions,         setQOptions]         = useState(['', '', '', '']);
+  const [qCorrect,         setQCorrect]         = useState(0);
+  const [saving,           setSaving]           = useState(false);
+  const [initialized,      setInitialized]      = useState(false);
 
-  const toggleMaterial = (materialId) => {
+  useEffect(() => {
+    if (quiz && !initialized) {
+      setQuizType(quiz.type ?? 'practice');
+      setQuizTitle(quiz.title || '');
+      setQuizDesc(quiz.description || '');
+      setDuration(String(quiz.duration || 15));
+      setTotalMarks(String(quiz.totalMarks || 10));
+      setTestDate(quiz.date || '');
+      setSelectedMaterials(quiz.materialIds || []);
+      setQuestions(quiz.questions || []);
+      setInitialized(true);
+    }
+  }, [quiz]);
+
+  const toggleMaterial = (mid) =>
     setSelectedMaterials((prev) =>
-      prev.includes(materialId)
-        ? prev.filter((id) => id !== materialId)
-        : [...prev, materialId]
+      prev.includes(mid) ? prev.filter((id) => id !== mid) : [...prev, mid]
     );
-  };
-
-  const [questions, setQuestions] = useState([]);
-  const [qText, setQText] = useState('');
-  const [qOptions, setQOptions] = useState(['', '', '', '']);
-  const [qCorrect, setQCorrect] = useState(0);
 
   const addQuestion = () => {
-    if (!qText.trim()) {
-      Alert.alert('Soal kosong', 'Tulis teks pertanyaan terlebih dahulu.');
-      return;
-    }
+    if (!qText.trim()) { Alert.alert('Soal kosong', 'Tulis teks pertanyaan terlebih dahulu.'); return; }
     const filled = qOptions.filter((o) => o.trim());
-    if (filled.length < 2) {
-      Alert.alert('Pilihan kurang', 'Isi minimal 2 pilihan jawaban.');
-      return;
-    }
-    if (!qOptions[qCorrect]?.trim()) {
-      Alert.alert('Jawaban benar kosong', 'Pilihan yang ditandai benar tidak boleh kosong.');
-      return;
-    }
+    if (filled.length < 2) { Alert.alert('Pilihan kurang', 'Isi minimal 2 pilihan jawaban.'); return; }
+    if (!qOptions[qCorrect]?.trim()) { Alert.alert('Jawaban benar kosong', 'Pilihan yang ditandai benar tidak boleh kosong.'); return; }
     const allOptions = qOptions.map((o) => o.trim()).filter(Boolean);
     const correctText = qOptions[qCorrect]?.trim();
     const newCorrect = allOptions.indexOf(correctText);
-
     setQuestions((prev) => [
       ...prev,
       { id: String(Date.now()), text: qText.trim(), options: allOptions, correct: newCorrect >= 0 ? newCorrect : 0 },
@@ -80,34 +83,44 @@ export default function CreateQuizScreen() {
     });
   };
 
-  const handleCreate = () => {
+  const handleSave = async () => {
     if (!quizTitle.trim()) { Alert.alert('Judul kosong', `Isi judul ${quizType === 'exam' ? 'ujian' : 'kuis'}.`); return; }
-    if (!subjectId) { Alert.alert('Error', 'Kelas tidak valid.'); return; }
     if (quizType === 'exam' && !testDate.trim()) { Alert.alert('Tanggal wajib', 'Isi tanggal ujian untuk entri ujian nyata.'); return; }
     if (quizType === 'practice' && questions.length === 0) { Alert.alert('Belum ada soal', 'Tambahkan minimal 1 soal terlebih dahulu.'); return; }
-
-    addQuiz({
-      type: quizType,
-      subjectId,
-      title: quizTitle.trim(),
-      description: quizDesc.trim(),
-      duration: parseInt(duration) || 15,
-      totalMarks: parseInt(totalMarks) || 10,
-      date: testDate.trim() || null,
-      questions,
-      materialIds: selectedMaterials,
-    });
-
-    const typeLabel = quizType === 'exam' ? 'Ujian' : 'Kuis';
-    const detail = quizType === 'exam'
-      ? `Dijadwalkan pada ${testDate}`
-      : `${questions.length} soal`;
-    Alert.alert(
-      `${typeLabel} dibuat! 🎉`,
-      `"${quizTitle}" berhasil dibuat. ${detail}${subject ? ` · ${subject.title}` : ''}.`,
-      [{ text: 'OK', onPress: () => router.back() }]
-    );
+    setSaving(true);
+    try {
+      await updateQuiz(quizId, {
+        type: quizType,
+        title: quizTitle.trim(),
+        description: quizDesc.trim(),
+        duration: parseInt(duration) || 15,
+        totalMarks: parseInt(totalMarks) || 10,
+        date: testDate.trim() || null,
+        questions,
+        materialIds: selectedMaterials,
+      });
+      Alert.alert('Tersimpan ✅', `"${quizTitle}" berhasil diperbarui.`, [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
+    } catch (e) {
+      Alert.alert('Gagal menyimpan', e.message);
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (!quiz) {
+    return (
+      <SafeAreaView style={s.safe}>
+        <View style={s.center}>
+          <Text style={s.notFound}>Kuis tidak ditemukan.</Text>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text style={s.backLink}>← Kembali</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={s.safe}>
@@ -116,7 +129,8 @@ export default function CreateQuizScreen() {
           <TouchableOpacity style={s.back} onPress={() => router.back()}>
             <Text style={s.backText}>← Kembali</Text>
           </TouchableOpacity>
-          <Text style={s.pageTitle}>{quizType === 'exam' ? 'Tambah Ujian' : 'Buat Kuis Baru'}</Text>
+          <Text style={s.pageTitle}>Edit {quizType === 'exam' ? 'Ujian' : 'Kuis'}</Text>
+
           {subject && (
             <View style={[s.subjectBadge, { backgroundColor: subject.color + '22', borderColor: subject.color + '55' }]}>
               <Text style={{ fontSize: 14 }}>{subject.icon}</Text>
@@ -150,6 +164,7 @@ export default function CreateQuizScreen() {
             </Text>
           </View>
 
+          {/* Info card */}
           <View style={s.card}>
             <Text style={s.cardTitle}>{quizType === 'exam' ? '📅 Info Ujian' : '📋 Info Kuis'}</Text>
 
@@ -160,7 +175,7 @@ export default function CreateQuizScreen() {
 
             <Text style={s.label}>Deskripsi</Text>
             <TextInput style={[s.input, s.textarea]} value={quizDesc} onChangeText={setQuizDesc}
-              placeholder="Deskripsi singkat kuis ini..." placeholderTextColor={colors.textFaint}
+              placeholder="Deskripsi singkat..." placeholderTextColor={colors.textFaint}
               multiline numberOfLines={3} textAlignVertical="top" />
 
             <View style={s.row}>
@@ -176,16 +191,18 @@ export default function CreateQuizScreen() {
                   keyboardType="numeric" placeholderTextColor={colors.textFaint} />
               </View>
             </View>
+
             <Text style={s.label}>Tanggal Ujian{quizType === 'exam' ? ' *' : ''}</Text>
             <TextInput style={s.input} value={testDate} onChangeText={setTestDate}
               placeholder="YYYY-MM-DD  (contoh: 2026-05-20)"
               placeholderTextColor={colors.textFaint} />
           </View>
 
+          {/* Materials */}
           {subjectMaterials.length > 0 && (
             <View style={s.card}>
-              <Text style={s.cardTitle}>📚 Materi Ujian</Text>
-              <Text style={s.cardSubtitle}>Pilih materi yang perlu dipelajari sebelum ujian ini</Text>
+              <Text style={s.cardTitle}>📚 Materi Persiapan</Text>
+              <Text style={s.cardSubtitle}>Pilih materi yang perlu dipelajari sebelum ujian/kuis ini</Text>
 
               {subjectMaterials.map((mat) => {
                 const isSelected = selectedMaterials.includes(mat.id);
@@ -201,9 +218,7 @@ export default function CreateQuizScreen() {
                     </View>
                     <Text style={s.materialIcon}>{typeIcon}</Text>
                     <View style={s.materialInfo}>
-                      <Text style={[s.materialTitle, isSelected && s.materialTitleSelected]}>
-                        {mat.title}
-                      </Text>
+                      <Text style={[s.materialTitle, isSelected && s.materialTitleSelected]}>{mat.title}</Text>
                       <Text style={s.materialMeta}>{mat.type} · {mat.author}</Text>
                     </View>
                   </TouchableOpacity>
@@ -218,6 +233,7 @@ export default function CreateQuizScreen() {
             </View>
           )}
 
+          {/* Add question */}
           <View style={s.card}>
             <Text style={s.cardTitle}>
               ➕ Tambah Soal{quizType === 'exam' ? ' (Opsional — Contoh Soal Persiapan)' : ''}
@@ -225,13 +241,10 @@ export default function CreateQuizScreen() {
             <Text style={s.cardSubtitle}>Soal ke-{questions.length + 1}</Text>
 
             <Text style={s.label}>Pertanyaan *</Text>
-            <TextInput
-              style={[s.input, s.textarea]}
-              value={qText} onChangeText={setQText}
+            <TextInput style={[s.input, s.textarea]} value={qText} onChangeText={setQText}
               placeholder="Tulis teks pertanyaan di sini..."
               placeholderTextColor={colors.textFaint}
-              multiline numberOfLines={3} textAlignVertical="top"
-            />
+              multiline numberOfLines={3} textAlignVertical="top" />
 
             <Text style={s.label}>Pilihan Jawaban</Text>
             <Text style={s.hint}>Ketuk ⭕ untuk menandai jawaban yang benar</Text>
@@ -246,16 +259,11 @@ export default function CreateQuizScreen() {
                 </TouchableOpacity>
                 <TextInput
                   style={[
-                    s.input,
-                    s.optInput,
+                    s.input, s.optInput,
                     qCorrect === i && { borderColor: colors.success + '88', backgroundColor: colors.success + '0a' },
                   ]}
                   value={opt}
-                  onChangeText={(v) => {
-                    const next = [...qOptions];
-                    next[i] = v;
-                    setQOptions(next);
-                  }}
+                  onChangeText={(v) => { const next = [...qOptions]; next[i] = v; setQOptions(next); }}
                   placeholder={`Pilihan ${String.fromCharCode(65 + i)}${qCorrect === i ? ' (benar)' : ''}`}
                   placeholderTextColor={colors.textFaint}
                 />
@@ -267,6 +275,7 @@ export default function CreateQuizScreen() {
             </TouchableOpacity>
           </View>
 
+          {/* Questions list */}
           {questions.length > 0 && (
             <View style={s.card}>
               <View style={s.cardTitleRow}>
@@ -302,9 +311,7 @@ export default function CreateQuizScreen() {
                         oi === q.correct && { backgroundColor: colors.success + '22', borderColor: colors.success + '55' },
                       ]}>
                         <Text style={s.qOptionLetter}>{String.fromCharCode(65 + oi)}.</Text>
-                        <Text style={[s.qOptionText, oi === q.correct && { color: colors.success }]}>
-                          {opt}
-                        </Text>
+                        <Text style={[s.qOptionText, oi === q.correct && { color: colors.success }]}>{opt}</Text>
                         {oi === q.correct && <Text style={{ color: colors.success, fontSize: 12 }}>✓</Text>}
                       </View>
                     ))}
@@ -314,11 +321,14 @@ export default function CreateQuizScreen() {
             </View>
           )}
 
-          <TouchableOpacity style={s.createBtn} onPress={handleCreate} activeOpacity={0.8}>
-            <Text style={s.createBtnText}>
-              {quizType === 'exam'
-                ? `🚀  Simpan Ujian${questions.length > 0 ? ` (${questions.length} soal persiapan)` : ''}`
-                : `🚀  Simpan Kuis (${questions.length} soal)`}
+          <TouchableOpacity
+            style={[s.saveBtn, saving && { opacity: 0.6 }]}
+            onPress={handleSave}
+            disabled={saving}
+            activeOpacity={0.8}
+          >
+            <Text style={s.saveBtnText}>
+              {saving ? 'Menyimpan...' : '✅  Simpan Perubahan'}
             </Text>
           </TouchableOpacity>
 
@@ -335,6 +345,9 @@ const makeStyles = (c, isDark) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.bg },
     scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
+    notFound: { color: c.textMuted, fontSize: fontSize.lg },
+    backLink: { color: c.accent, fontSize: fontSize.md },
     back: { marginBottom: spacing.md },
     backText: { color: c.textMuted, fontSize: fontSize.sm },
     pageTitle: { color: c.text, fontSize: fontSize.xxxl, fontWeight: fontWeight.black, marginBottom: spacing.md },
@@ -345,45 +358,17 @@ const makeStyles = (c, isDark) =>
       borderWidth: 1, marginBottom: spacing.xl,
     },
     subjectBadgeText: { fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-    typeToggleWrap: {
-      marginBottom: spacing.lg,
-    },
-    typeToggleLabel: {
-      color: c.textMuted,
-      fontSize: fontSize.sm,
-      fontWeight: fontWeight.medium,
-      marginBottom: spacing.xs,
-    },
+    typeToggleWrap: { marginBottom: spacing.lg },
+    typeToggleLabel: { color: c.textMuted, fontSize: fontSize.sm, fontWeight: fontWeight.medium, marginBottom: spacing.xs },
     typeToggle: {
-      flexDirection: 'row',
-      backgroundColor: c.bgCard,
-      borderRadius: radius.md,
-      borderWidth: 1,
-      borderColor: c.border,
-      overflow: 'hidden',
+      flexDirection: 'row', backgroundColor: c.bgCard,
+      borderRadius: radius.md, borderWidth: 1, borderColor: c.border, overflow: 'hidden',
     },
-    typeBtn: {
-      flex: 1,
-      paddingVertical: spacing.sm,
-      alignItems: 'center',
-    },
-    typeBtnActive: {
-      backgroundColor: c.admin,
-    },
-    typeBtnText: {
-      color: c.textMuted,
-      fontSize: fontSize.sm,
-      fontWeight: fontWeight.medium,
-    },
-    typeBtnTextActive: {
-      color: c.white,
-      fontWeight: fontWeight.bold,
-    },
-    typeHint: {
-      color: c.textFaint,
-      fontSize: fontSize.xs,
-      marginTop: spacing.xs,
-    },
+    typeBtn: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center' },
+    typeBtnActive: { backgroundColor: c.admin },
+    typeBtnText: { color: c.textMuted, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    typeBtnTextActive: { color: c.white, fontWeight: fontWeight.bold },
+    typeHint: { color: c.textFaint, fontSize: fontSize.xs, marginTop: spacing.xs },
     card: {
       backgroundColor: c.bgCard, borderRadius: radius.lg,
       borderWidth: 1, borderColor: c.border,
@@ -392,10 +377,7 @@ const makeStyles = (c, isDark) =>
     cardTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.sm },
     cardTitle: { color: c.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold, marginBottom: spacing.xs },
     cardSubtitle: { color: c.textMuted, fontSize: fontSize.sm, marginBottom: spacing.sm },
-    label: {
-      color: c.textMuted, fontSize: fontSize.sm,
-      fontWeight: fontWeight.medium, marginBottom: spacing.xs, marginTop: spacing.md,
-    },
+    label: { color: c.textMuted, fontSize: fontSize.sm, fontWeight: fontWeight.medium, marginBottom: spacing.xs, marginTop: spacing.md },
     hint: { color: c.textFaint, fontSize: fontSize.xs, marginBottom: spacing.sm },
     input: {
       backgroundColor: c.bg, borderWidth: 1, borderColor: c.border,
@@ -409,8 +391,7 @@ const makeStyles = (c, isDark) =>
     radio: {
       width: 24, height: 24, borderRadius: 12,
       borderWidth: 2, borderColor: c.border,
-      alignItems: 'center', justifyContent: 'center',
-      backgroundColor: c.bg,
+      alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg,
     },
     radioActive: { borderColor: c.success },
     radioInner: { width: 11, height: 11, borderRadius: 6, backgroundColor: c.success },
@@ -421,10 +402,7 @@ const makeStyles = (c, isDark) =>
       alignItems: 'center', borderWidth: 1, borderColor: c.accent + '55',
     },
     addQBtnText: { color: c.accent, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
-    countBadge: {
-      borderRadius: radius.full, borderWidth: 1,
-      paddingHorizontal: spacing.sm, paddingVertical: 2,
-    },
+    countBadge: { borderRadius: radius.full, borderWidth: 1, paddingHorizontal: spacing.sm, paddingVertical: 2 },
     countText: { fontSize: fontSize.xs, fontWeight: fontWeight.bold },
     qCard: {
       backgroundColor: c.bg, borderRadius: radius.md,
@@ -455,42 +433,35 @@ const makeStyles = (c, isDark) =>
     },
     qOptionLetter: { color: c.textFaint, fontSize: fontSize.xs, fontWeight: fontWeight.bold, width: 18 },
     qOptionText: { flex: 1, color: c.textMuted, fontSize: fontSize.sm },
-    createBtn: {
-      backgroundColor: c.admin, borderRadius: radius.md,
-      paddingVertical: spacing.md + 2, alignItems: 'center', marginBottom: spacing.sm,
-    },
-    createBtnText: { color: c.white, fontSize: fontSize.md, fontWeight: fontWeight.black },
-    cancelBtn: {
-      borderRadius: radius.md, paddingVertical: spacing.md,
-      alignItems: 'center', borderWidth: 1, borderColor: c.border,
-    },
-    cancelText: { color: c.textMuted, fontSize: fontSize.md },
     materialItem: {
       flexDirection: 'row', alignItems: 'center', gap: spacing.md,
       backgroundColor: c.bg, borderRadius: radius.md,
       borderWidth: 1, borderColor: c.border,
       padding: spacing.md, marginBottom: spacing.sm,
     },
-    materialItemSelected: {
-      borderColor: c.accent + '88', backgroundColor: c.accent + '15',
-    },
+    materialItemSelected: { borderColor: c.accent + '88', backgroundColor: c.accent + '15' },
     checkbox: {
       width: 22, height: 22, borderRadius: radius.sm,
       borderWidth: 2, borderColor: c.border,
       alignItems: 'center', justifyContent: 'center',
     },
-    checkboxSelected: {
-      backgroundColor: c.accent, borderColor: c.accent,
-    },
+    checkboxSelected: { backgroundColor: c.accent, borderColor: c.accent },
     checkmark: { color: c.white, fontSize: 12, fontWeight: fontWeight.bold },
     materialIcon: { fontSize: 20 },
     materialInfo: { flex: 1 },
     materialTitle: { color: c.text, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     materialTitleSelected: { color: c.accent },
     materialMeta: { color: c.textFaint, fontSize: fontSize.xs, marginTop: 2 },
-    selectedInfo: {
-      marginTop: spacing.sm, paddingTop: spacing.sm,
-      borderTopWidth: 1, borderTopColor: c.border,
-    },
+    selectedInfo: { marginTop: spacing.sm, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: c.border },
     selectedText: { color: c.accent, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+    saveBtn: {
+      backgroundColor: c.admin, borderRadius: radius.md,
+      paddingVertical: spacing.md + 2, alignItems: 'center', marginBottom: spacing.sm,
+    },
+    saveBtnText: { color: c.white, fontSize: fontSize.md, fontWeight: fontWeight.black },
+    cancelBtn: {
+      borderRadius: radius.md, paddingVertical: spacing.md,
+      alignItems: 'center', borderWidth: 1, borderColor: c.border,
+    },
+    cancelText: { color: c.textMuted, fontSize: fontSize.md },
   });

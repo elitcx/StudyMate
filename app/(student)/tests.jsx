@@ -7,47 +7,72 @@ import { useData } from '../../src/contexts/DataContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
 import { spacing, radius, fontSize, fontWeight, getShadow } from '../../utils/theme';
 
+const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+function fmtDate(s) {
+  if (!s) return null;
+  const d = new Date(s);
+  return isNaN(d) ? s : `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+function daysUntil(s) {
+  if (!s) return null;
+  const t = new Date(); t.setHours(0,0,0,0);
+  const d = new Date(s); d.setHours(0,0,0,0);
+  return Math.ceil((d - t) / 86400000);
+}
+
 export default function TestsScreen() {
   const { colors, isDark } = useTheme();
   const s = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
 
   const { user } = useAuth();
-  const { subjects, quizzes, materials, getUserScores } = useData();
+  const { subjects, quizzes, materials } = useData();
   const router = useRouter();
-  const [filter, setFilter] = useState('pending'); // 'pending' | 'done'
+  const [filter, setFilter] = useState('upcoming');
 
   const mySubjectIds = user?.enrolledSubjects || [];
-  const myScores = getUserScores(user?.id || '');
-  const completedIds = new Set(myScores.map((sc) => sc.quizId));
+  const today = new Date().toISOString().split('T')[0];
 
-  const myQuizzes = quizzes.filter((q) => mySubjectIds.includes(q.subjectId));
-  const pending = myQuizzes.filter((q) => !completedIds.has(q.id));
-  const done = myQuizzes.filter((q) => completedIds.has(q.id));
-  const displayed = filter === 'pending' ? pending : done;
+  const myExams = quizzes.filter(
+    (q) => mySubjectIds.includes(q.subjectId) && (q.type ?? 'practice') === 'exam'
+  );
+
+  const upcoming = myExams
+    .filter((q) => !q.date || q.date >= today)
+    .sort((a, b) => {
+      if (!a.date) return 1;
+      if (!b.date) return -1;
+      return a.date.localeCompare(b.date);
+    });
+
+  const past = myExams
+    .filter((q) => q.date && q.date < today)
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  const displayed = filter === 'upcoming' ? upcoming : past;
 
   return (
     <SafeAreaView style={s.safe}>
       {/* Header */}
       <View style={s.header}>
-        <Text style={s.title}>Ujian & Kuis</Text>
+        <Text style={s.title}>Ujian</Text>
 
         {/* Stat boxes */}
         <View style={s.statsRow}>
           <View style={s.statBox}>
-            <Text style={[s.statValue, { color: colors.accent }]}>{pending.length}</Text>
-            <Text style={s.statLabel}>Belum dikerjakan</Text>
+            <Text style={[s.statValue, { color: colors.accent }]}>{upcoming.length}</Text>
+            <Text style={s.statLabel}>Mendatang</Text>
           </View>
           <View style={s.statBox}>
-            <Text style={[s.statValue, { color: colors.success }]}>{done.length}</Text>
-            <Text style={s.statLabel}>Sudah selesai</Text>
+            <Text style={[s.statValue, { color: colors.textMuted }]}>{past.length}</Text>
+            <Text style={s.statLabel}>Sudah lewat</Text>
           </View>
         </View>
 
         {/* Filter pills */}
         <View style={s.filterRow}>
           {[
-            { key: 'pending', label: `Belum (${pending.length})` },
-            { key: 'done', label: `Selesai (${done.length})` },
+            { key: 'upcoming', label: `Mendatang (${upcoming.length})` },
+            { key: 'past',     label: `Lewat (${past.length})` },
           ].map((f) => (
             <TouchableOpacity
               key={f.key}
@@ -65,30 +90,32 @@ export default function TestsScreen() {
       <FlatList
         data={displayed}
         keyExtractor={(i) => i.id}
+        key={isDark ? 'dark' : 'light'}
         contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={s.empty}>
-            <Text style={s.emptyIcon}>{filter === 'pending' ? '🎉' : '📝'}</Text>
+            <Text style={s.emptyIcon}>{filter === 'upcoming' ? '📅' : '✅'}</Text>
             <Text style={s.emptyTitle}>
-              {filter === 'pending'
-                ? 'Semua kuis sudah selesai!'
-                : 'Belum ada kuis yang diselesaikan'}
+              {filter === 'upcoming'
+                ? 'Tidak ada ujian mendatang'
+                : 'Belum ada ujian yang lewat'}
             </Text>
           </View>
         }
-        renderItem={({ item: quiz }) => {
-          const sub = subjects.find((s) => s.id === quiz.subjectId);
-          const score = myScores.find((sc) => sc.quizId === quiz.id);
-          const pctColor = score
-            ? score.percentage >= 70
-              ? colors.success
-              : score.percentage >= 50
-              ? colors.warning
-              : colors.danger
-            : colors.accent;
+        renderItem={({ item: exam }) => {
+          const sub = subjects.find((su) => su.id === exam.subjectId);
+          const days = daysUntil(exam.date);
 
-          const quizMaterials = (quiz.materialIds || [])
+          let urgencyColor = colors.success;
+          let urgencyLabel = days !== null ? `${days} hari lagi` : null;
+          if (days === null)            { urgencyColor = colors.textFaint; }
+          if (days !== null && days < 0){ urgencyColor = colors.textFaint; urgencyLabel = 'Sudah lewat'; }
+          if (days === 0)               { urgencyColor = colors.danger;  urgencyLabel = 'Hari ini!'; }
+          if (days > 0 && days <= 3)    urgencyColor = colors.danger;
+          if (days > 3 && days <= 7)    urgencyColor = colors.warning;
+
+          const examMaterials = (exam.materialIds || [])
             .map((mid) => materials.find((m) => m.id === mid))
             .filter(Boolean);
 
@@ -99,88 +126,61 @@ export default function TestsScreen() {
           return (
             <TouchableOpacity
               style={cardStyle}
-              onPress={() => filter === 'pending' && router.push(`/(student)/quiz/${quiz.id}`)}
-              activeOpacity={filter === 'pending' ? 0.8 : 1}
+              onPress={() => router.push({
+                pathname: '/(student)/test-materials',
+                params: { testId: exam.id, subjectId: exam.subjectId },
+              })}
+              activeOpacity={0.8}
             >
               {/* Top row: icon + info + badge */}
               <View style={s.cardTop}>
-                <View
-                  style={[
-                    s.iconBox,
-                    { backgroundColor: (sub?.color || colors.accent) + '22' },
-                  ]}
-                >
+                <View style={[s.iconBox, { backgroundColor: (sub?.color || colors.accent) + '22' }]}>
                   <Text style={{ fontSize: 24 }}>{sub?.icon || '📝'}</Text>
                 </View>
                 <View style={s.cardInfo}>
-                  <Text style={s.cardTitle}>{quiz.title}</Text>
+                  <Text style={s.cardTitle}>{exam.title}</Text>
                   <Text style={s.cardSub}>{sub?.title}</Text>
                 </View>
-                {score ? (
-                  <View
-                    style={[
-                      s.scoreBadge,
-                      { backgroundColor: pctColor + '22', borderColor: pctColor + '55' },
-                    ]}
-                  >
-                    <Text style={[s.scoreText, { color: pctColor }]}>
-                      {score.percentage}%
-                    </Text>
-                  </View>
-                ) : (
-                  <View style={s.pendingBadge}>
-                    <Text style={s.pendingText}>Mulai →</Text>
-                  </View>
-                )}
+                <View style={s.prepBadge}>
+                  <Text style={s.prepText}>Lihat Persiapan →</Text>
+                </View>
               </View>
 
-              {/* Meta row */}
-              <View style={s.cardMeta}>
-                <Text style={s.metaItem}>⏱ {quiz.duration} menit</Text>
-                <Text style={s.metaDot}>·</Text>
-                <Text style={s.metaItem}>❓ {quiz.questions?.length || 0} soal</Text>
-                <Text style={s.metaDot}>·</Text>
-                <Text style={s.metaItem}>🏆 {quiz.totalMarks} poin</Text>
+              {/* Date row */}
+              <View style={[s.dateRow, { backgroundColor: urgencyColor + '12', borderColor: urgencyColor + '44' }]}>
+                <Text style={s.dateIcon}>📅</Text>
+                <Text style={[s.dateText, { color: urgencyColor }]}>
+                  {fmtDate(exam.date) ?? 'Tanggal belum ditentukan'}
+                  {urgencyLabel ? ` · ${urgencyLabel}` : ''}
+                </Text>
               </View>
 
               {/* Description */}
-              {quiz.description ? (
-                <Text style={s.cardDesc} numberOfLines={2}>
-                  {quiz.description}
-                </Text>
+              {exam.description ? (
+                <Text style={s.cardDesc} numberOfLines={2}>{exam.description}</Text>
               ) : null}
 
+              {/* Optional question count */}
+              {exam.questions?.length > 0 && (
+                <Text style={s.questionHint}>❓ {exam.questions.length} contoh soal tersedia</Text>
+              )}
+
               {/* Materials preparation chips */}
-              {quizMaterials.length > 0 && (
+              {examMaterials.length > 0 && (
                 <View style={s.materialsSection}>
                   <Text style={s.materialsTitle}>📚 Materi Persiapan:</Text>
                   <View style={s.materialsList}>
-                    {quizMaterials.map((mat) => {
+                    {examMaterials.map((mat) => {
                       const typeIcon =
-                        mat.type === 'video'
-                          ? '🎬'
-                          : mat.type === 'pdf'
-                          ? '📄'
-                          : '📝';
+                        mat.type === 'video' ? '🎬' : mat.type === 'pdf' ? '📄' : '📝';
                       return (
                         <View key={mat.id} style={s.materialChip}>
                           <Text style={s.materialChipIcon}>{typeIcon}</Text>
-                          <Text style={s.materialChipText} numberOfLines={1}>
-                            {mat.title}
-                          </Text>
+                          <Text style={s.materialChipText} numberOfLines={1}>{mat.title}</Text>
                         </View>
                       );
                     })}
                   </View>
-                </View>
-              )}
-
-              {/* Score detail for completed */}
-              {score && (
-                <View style={s.scoreDetail}>
-                  <Text style={s.scoreDetailText}>
-                    Nilai: {score.score}/{score.total} · Selesai: {score.completedAt}
-                  </Text>
                 </View>
               )}
             </TouchableOpacity>
@@ -250,7 +250,7 @@ const makeStyles = (c, isDark) =>
       fontWeight: fontWeight.medium,
     },
     filterTextActive: {
-      color: '#ffffff',
+      color: c.white,
       fontWeight: fontWeight.bold,
     },
 
@@ -263,12 +263,12 @@ const makeStyles = (c, isDark) =>
       borderRadius: radius.lg,
       padding: spacing.md,
       marginBottom: spacing.md,
+      gap: spacing.sm,
     },
     cardTop: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.md,
-      marginBottom: spacing.sm,
     },
     iconBox: {
       width: 48,
@@ -285,15 +285,8 @@ const makeStyles = (c, isDark) =>
     },
     cardSub: { color: c.textMuted, fontSize: fontSize.xs, marginTop: 2 },
 
-    // Badges
-    scoreBadge: {
-      borderRadius: radius.full,
-      borderWidth: 1,
-      paddingHorizontal: spacing.sm,
-      paddingVertical: spacing.xs,
-    },
-    scoreText: { fontSize: fontSize.sm, fontWeight: fontWeight.black },
-    pendingBadge: {
+    // Prep badge
+    prepBadge: {
       backgroundColor: c.accent + '22',
       borderRadius: radius.full,
       paddingHorizontal: spacing.sm,
@@ -301,25 +294,30 @@ const makeStyles = (c, isDark) =>
       borderWidth: 1,
       borderColor: c.accent + '55',
     },
-    pendingText: { color: c.accent, fontSize: fontSize.xs, fontWeight: fontWeight.bold },
+    prepText: { color: c.accent, fontSize: fontSize.xs, fontWeight: fontWeight.bold },
 
-    // Meta row
-    cardMeta: {
+    // Date row
+    dateRow: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.xs,
-      marginBottom: spacing.xs,
+      borderRadius: radius.sm,
+      borderWidth: 1,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs + 2,
     },
-    metaItem: { color: c.textFaint, fontSize: fontSize.xs },
-    metaDot: { color: c.textFaint },
+    dateIcon: { fontSize: 13 },
+    dateText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
 
     // Description
     cardDesc: { color: c.textMuted, fontSize: fontSize.sm },
 
+    // Question hint
+    questionHint: { color: c.textFaint, fontSize: fontSize.xs },
+
     // Materials
     materialsSection: {
-      marginTop: spacing.sm,
-      paddingTop: spacing.sm,
+      paddingTop: spacing.xs,
       borderTopWidth: 1,
       borderTopColor: c.border,
     },
@@ -342,15 +340,6 @@ const makeStyles = (c, isDark) =>
     },
     materialChipIcon: { fontSize: 12 },
     materialChipText: { color: c.accent, fontSize: fontSize.xs, maxWidth: 120 },
-
-    // Score detail
-    scoreDetail: {
-      marginTop: spacing.sm,
-      paddingTop: spacing.sm,
-      borderTopWidth: 1,
-      borderTopColor: c.border,
-    },
-    scoreDetailText: { color: c.textFaint, fontSize: fontSize.xs },
 
     // Empty state
     empty: {

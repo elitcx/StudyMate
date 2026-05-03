@@ -90,9 +90,9 @@ export default function HomeScreen() {
           const subMats    = materials.filter((m) => m.subjectId === sub.id);
           const completed  = subQuizzes.filter((q) => myScores.some((sc) => sc.quizId === q.id)).length;
 
-          // Next upcoming test
+          // Next upcoming exam (type='exam' only — practice quizzes don't show here)
           const upcoming = subQuizzes
-            .filter((q) => q.date)
+            .filter((q) => q.date && (q.type ?? 'practice') === 'exam')
             .sort((a, b) => new Date(a.date) - new Date(b.date))
             .find((q) => daysUntil(q.date) >= 0);
 
@@ -259,6 +259,6 @@ const makeStyles = (c, isDark) => {
       paddingHorizontal: spacing.xl,
       paddingVertical: spacing.sm,
     },
-    emptyBtnText: { color: '#ffffff', fontSize: fontSize.sm, fontWeight: fontWeight.bold },
+    emptyBtnText: { color: c.white, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
   });
 };
