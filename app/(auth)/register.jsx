@@ -1,13 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  KeyboardAvoidingView, Platform, ScrollView, Alert,
+  KeyboardAvoidingView, Platform, ScrollView, Alert, Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { Button, Input } from '../../components/UI';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight, getShadow } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 const GRADES = [
   { value: 'X',   label: 'Kelas X',   sub: '(Grade 10)' },
@@ -68,9 +69,7 @@ export default function RegisterScreen() {
         </TouchableOpacity>
 
         <View style={s.brand}>
-          <View style={s.logoCircle}>
-            <Text style={s.logoEmoji}>📚</Text>
-          </View>
+          <Image source={require('../../assets/icon.png')} style={s.logoImage} />
           <Text style={s.appName}>StudyMate</Text>
         </View>
 
@@ -114,11 +113,6 @@ export default function RegisterScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={s.note}>
-          <Text style={s.noteText}>
-            Akun baru otomatis terdaftar sebagai siswa. Hubungi superadmin untuk mengubah peran.
-          </Text>
-        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -146,16 +140,7 @@ const makeStyles = (c, isDark) => {
       alignItems: 'center',
       marginBottom: spacing.xl,
     },
-    logoCircle: {
-      width: 64,
-      height: 64,
-      borderRadius: 32,
-      backgroundColor: c.accent + '18',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: spacing.sm,
-    },
-    logoEmoji: { fontSize: 28 },
+    logoImage: { width: 64, height: 64, borderRadius: 14, marginBottom: spacing.sm },
     appName: {
       fontSize: fontSize.xxl,
       fontWeight: fontWeight.black,
@@ -201,7 +186,7 @@ const makeStyles = (c, isDark) => {
       backgroundColor: c.bgElevated,
     },
     gradeBtnActive: {
-      backgroundColor: c.accent + '18',
+      backgroundColor: c.accent + opacity.tint,
       borderColor: c.accent,
     },
     gradeBtnLabel: {
@@ -228,20 +213,6 @@ const makeStyles = (c, isDark) => {
     linkAccent: {
       color: c.accent,
       fontWeight: fontWeight.semibold,
-    },
-    note: {
-      marginTop: spacing.xl,
-      backgroundColor: c.accent + '11',
-      borderRadius: radius.md,
-      padding: spacing.md,
-      borderWidth: 1,
-      borderColor: c.accent + '33',
-    },
-    noteText: {
-      color: c.accent,
-      fontSize: fontSize.xs,
-      lineHeight: 18,
-      textAlign: 'center',
     },
   });
 };

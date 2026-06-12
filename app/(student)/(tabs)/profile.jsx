@@ -2,14 +2,11 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { useData } from '../../src/contexts/DataContext';
-import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight, getShadow } from '../../utils/theme';
+import { useAuth } from '../../../src/contexts/AuthContext';
+import { useData } from '../../../src/contexts/DataContext';
+import { useTheme } from '../../../src/contexts/ThemeContext';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../../utils/theme';
 
-// ---------------------------------------------------------------------------
-// Sub-components — each calls useTheme() directly
-// ---------------------------------------------------------------------------
 
 const StatBox = ({ label, value, icon, color }) => {
   const { colors, isDark } = useTheme();
@@ -82,10 +79,6 @@ const InfoRow = ({ label, value, isLast }) => {
     </View>
   );
 };
-
-// ---------------------------------------------------------------------------
-// Main screen
-// ---------------------------------------------------------------------------
 
 export default function ProfileScreen() {
   const { colors, isDark, toggleTheme } = useTheme();
@@ -168,7 +161,7 @@ export default function ProfileScreen() {
               : [s.subjectRow, getShadow(isDark).sm];
             return (
               <View key={sub.id} style={rowStyle}>
-                <View style={[s.subjectIcon, { backgroundColor: sub.color + '22' }]}>
+                <View style={[s.subjectIcon, { backgroundColor: sub.color + opacity.subtle }]}>
                   <Text style={{ fontSize: 20 }}>{sub.icon}</Text>
                 </View>
                 <View style={s.subjectInfo}>
@@ -209,7 +202,7 @@ export default function ProfileScreen() {
                   <View
                     style={[
                       s.scoreBadge,
-                      { backgroundColor: pctColor + '22', borderColor: pctColor + '55' },
+                      { backgroundColor: pctColor + opacity.subtle, borderColor: pctColor + opacity.muted },
                     ]}
                   >
                     <Text style={[s.scoreValue, { color: pctColor }]}>
@@ -227,12 +220,11 @@ export default function ProfileScreen() {
         <View style={s.infoCard}>
           <InfoRow label="Nama" value={user?.name} />
           <InfoRow label="Email" value={user?.email} />
-          <InfoRow label="Peran" value="Siswa" />
-          <InfoRow label="ID Pengguna" value={`#${user?.id}`} isLast />
+          <InfoRow label="Peran" value="Siswa" isLast />
         </View>
 
         {/* Theme Toggle */}
-        <TouchableOpacity style={[s.navBtn, { borderColor: colors.accent + '55' }]} onPress={toggleTheme}>
+        <TouchableOpacity style={[s.navBtn, { borderColor: colors.accent + opacity.muted }]} onPress={toggleTheme}>
           <Text style={[s.navBtnText, { color: colors.accent }]}>{isDark ? '☀️ Mode Terang' : '🌙 Mode Gelap'}</Text>
         </TouchableOpacity>
 
@@ -246,24 +238,19 @@ export default function ProfileScreen() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Styles factory
-// ---------------------------------------------------------------------------
-
 const makeStyles = (c, isDark) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.bg },
     scroll: { padding: spacing.lg, paddingBottom: spacing.xxl },
 
-    // Avatar section
     avatarSection: { alignItems: 'center', marginBottom: spacing.xl },
     avatarWrap: {
       width: 88,
       height: 88,
       borderRadius: 44,
-      backgroundColor: c.accent + '18',
+      backgroundColor: c.accent + opacity.tint,
       borderWidth: 2,
-      borderColor: c.accent + '55',
+      borderColor: c.accent + opacity.muted,
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: spacing.md,
@@ -287,16 +274,15 @@ const makeStyles = (c, isDark) =>
     },
     roleBadge: {
       marginTop: spacing.sm,
-      backgroundColor: c.accent + '22',
+      backgroundColor: c.accent + opacity.subtle,
       borderRadius: radius.full,
       paddingHorizontal: spacing.md,
       paddingVertical: 4,
       borderWidth: 1,
-      borderColor: c.accent + '44',
+      borderColor: c.accent + opacity.soft,
     },
     roleText: { color: c.accent, fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
 
-    // Stats grid
     statsGrid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
@@ -304,7 +290,6 @@ const makeStyles = (c, isDark) =>
       marginBottom: spacing.xl,
     },
 
-    // Section titles
     sectionTitle: {
       color: c.text,
       fontSize: fontSize.lg,
@@ -312,7 +297,6 @@ const makeStyles = (c, isDark) =>
       marginBottom: spacing.md,
     },
 
-    // Empty card
     emptyCard: {
       backgroundColor: c.bgCard,
       borderRadius: radius.md,
@@ -323,7 +307,6 @@ const makeStyles = (c, isDark) =>
     },
     emptyText: { color: c.textMuted, fontSize: fontSize.sm },
 
-    // Subject rows
     subjectRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -344,7 +327,6 @@ const makeStyles = (c, isDark) =>
     subjectName: { color: c.text, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     subjectMeta: { color: c.textFaint, fontSize: fontSize.xs, marginTop: 2 },
 
-    // Score rows
     scoreRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -365,7 +347,6 @@ const makeStyles = (c, isDark) =>
     },
     scoreValue: { fontSize: fontSize.sm, fontWeight: fontWeight.black },
 
-    // Info card (grouped list)
     infoCard: {
       backgroundColor: c.bgCard,
       borderRadius: radius.md,
@@ -376,7 +357,6 @@ const makeStyles = (c, isDark) =>
       ...(isDark ? {} : getShadow(isDark).sm),
     },
 
-    // Theme toggle & Logout
     navBtn: {
       backgroundColor: c.bgCard,
       borderRadius: radius.md,
@@ -389,12 +369,12 @@ const makeStyles = (c, isDark) =>
     },
     navBtnText: { color: c.accent, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     logoutBtn: {
-      backgroundColor: c.danger + '18',
+      backgroundColor: c.danger + opacity.tint,
       borderRadius: radius.md,
       paddingVertical: spacing.md,
       alignItems: 'center',
       borderWidth: 1,
-      borderColor: c.danger + '55',
+      borderColor: c.danger + opacity.muted,
     },
     logoutText: { color: c.danger, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
   });

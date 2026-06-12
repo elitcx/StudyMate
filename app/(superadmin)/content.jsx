@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useData } from '../../src/contexts/DataContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 export default function ContentScreen() {
   const { colors, isDark } = useTheme();
@@ -28,7 +29,7 @@ export default function ContentScreen() {
 
   const renderSubject = ({ item: sub }) => (
     <View style={s.itemCard}>
-      <View style={[s.iconBox, { backgroundColor: sub.color + '22' }]}>
+      <View style={[s.iconBox, { backgroundColor: sub.color + opacity.subtle }]}>
         <Text style={{ fontSize: 22 }}>{sub.icon}</Text>
       </View>
       <View style={s.itemInfo}>
@@ -46,7 +47,7 @@ export default function ContentScreen() {
     const sub = subjects.find((su) => su.id === mat.subjectId);
     return (
       <View style={s.itemCard}>
-        <View style={[s.iconBox, { backgroundColor: (mat.type === 'video' ? colors.admin : colors.danger) + '22' }]}>
+        <View style={[s.iconBox, { backgroundColor: (mat.type === 'video' ? colors.admin : colors.danger) + opacity.subtle }]}>
           <Text style={{ fontSize: 20 }}>{mat.type === 'video' ? '🎬' : '📄'}</Text>
         </View>
         <View style={s.itemInfo}>
@@ -64,7 +65,7 @@ export default function ContentScreen() {
     const sub = subjects.find((su) => su.id === quiz.subjectId);
     return (
       <View style={s.itemCard}>
-        <View style={[s.iconBox, { backgroundColor: colors.accent + '22' }]}>
+        <View style={[s.iconBox, { backgroundColor: colors.accent + opacity.subtle }]}>
           <Text style={{ fontSize: 20 }}>✏️</Text>
         </View>
         <View style={s.itemInfo}>
@@ -84,7 +85,7 @@ export default function ContentScreen() {
     const pctColor = sc.percentage >= 70 ? colors.success : sc.percentage >= 50 ? colors.warning : colors.danger;
     return (
       <View style={s.itemCard}>
-        <View style={[s.iconBox, { backgroundColor: pctColor + '22' }]}>
+        <View style={[s.iconBox, { backgroundColor: pctColor + opacity.subtle }]}>
           <Text style={{ fontSize: 20 }}>📊</Text>
         </View>
         <View style={s.itemInfo}>
@@ -93,7 +94,7 @@ export default function ContentScreen() {
             {sub?.title} · User #{sc.userId} · {sc.completedAt}
           </Text>
         </View>
-        <View style={[s.scoreBadge, { backgroundColor: pctColor + '22', borderColor: pctColor + '55' }]}>
+        <View style={[s.scoreBadge, { backgroundColor: pctColor + opacity.subtle, borderColor: pctColor + opacity.muted }]}>
           <Text style={[s.scoreText, { color: pctColor }]}>{sc.percentage}%</Text>
         </View>
       </View>
@@ -167,7 +168,7 @@ const makeStyles = (c, isDark) =>
       borderRadius: radius.md, borderWidth: 1, borderColor: c.border,
       backgroundColor: c.bgCard, gap: 2,
     },
-    tabBtnActive: { backgroundColor: c.superadmin + '22', borderColor: c.superadmin },
+    tabBtnActive: { backgroundColor: c.superadmin + opacity.subtle, borderColor: c.superadmin },
     tabLabel: { color: c.textMuted, fontSize: 10, fontWeight: fontWeight.medium },
     tabLabelActive: { color: c.superadmin, fontWeight: fontWeight.bold },
     tabCount: {

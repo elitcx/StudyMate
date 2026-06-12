@@ -8,7 +8,14 @@ import { useRouter } from 'expo-router';
 import { useData } from '../../src/contexts/DataContext';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
+const GRADES = [
+  { value: 'X',   label: 'Kelas X' },
+  { value: 'XI',  label: 'Kelas XI' },
+  { value: 'XII', label: 'Kelas XII' },
+];
+const GRADE_COLORS = { X: '#38bdf8', XI: '#a78bfa', XII: '#4ade80' };
 
 export default function QuizzesScreen() {
   const { colors, isDark } = useTheme();
@@ -25,17 +32,20 @@ export default function QuizzesScreen() {
   const [quizDuration, setQuizDuration] = useState('15');
   const [quizMarks, setQuizMarks] = useState('10');
   const [quizDate, setQuizDate] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState(subjects[0]?.id || '');
+  const [selectedGrade, setSelectedGrade] = useState('X');
+  const [selectedSubject, setSelectedSubject] = useState('');
   const [questions, setQuestions] = useState([]);
   const [qText, setQText] = useState('');
   const [qOptions, setQOptions] = useState(['', '', '', '']);
   const [qCorrect, setQCorrect] = useState(0);
 
+  const filteredSubjects = subjects.filter((su) => !su.grade || su.grade === selectedGrade);
+
   const resetCreate = () => {
     setQuizType('practice');
     setQuizTitle(''); setQuizDesc(''); setQuizDuration('15'); setQuizMarks('10');
     setQuizDate('');
-    setSelectedSubject(subjects[0]?.id || ''); setQuestions([]);
+    setSelectedGrade('X'); setSelectedSubject(''); setQuestions([]);
     setQText(''); setQOptions(['', '', '', '']); setQCorrect(0);
   };
 
@@ -107,13 +117,13 @@ export default function QuizzesScreen() {
             return (
               <View style={s.quizCard}>
                 <View style={s.quizCardTop}>
-                  <View style={[s.quizIcon, { backgroundColor: (sub?.color || colors.accent) + '22' }]}>
+                  <View style={[s.quizIcon, { backgroundColor: (sub?.color || colors.accent) + opacity.subtle }]}>
                     <Text style={{ fontSize: 20 }}>{sub?.icon || '📝'}</Text>
                   </View>
                   <View style={s.quizInfo}>
                     <View style={s.quizTitleRow}>
                       <Text style={s.quizTitle} numberOfLines={1}>{quiz.title}</Text>
-                      <View style={[s.typeBadge, { backgroundColor: typeColor + '22', borderColor: typeColor + '55' }]}>
+                      <View style={[s.typeBadge, { backgroundColor: typeColor + opacity.subtle, borderColor: typeColor + opacity.muted }]}>
                         <Text style={[s.typeBadgeText, { color: typeColor }]}>
                           {isExam ? '📅 Ujian' : '✏️ Kuis'}
                         </Text>
@@ -214,20 +224,42 @@ export default function QuizzesScreen() {
               </>
             )}
             <Text style={s.label}>Kelas *</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={s.subjectPills}>
-                {subjects.map((su) => (
-                  <TouchableOpacity
-                    key={su.id}
-                    style={[s.subjectPill, selectedSubject === su.id && { borderColor: su.color, backgroundColor: su.color + '22' }]}
-                    onPress={() => setSelectedSubject(su.id)}
-                  >
-                    <Text style={{ fontSize: 14 }}>{su.icon}</Text>
-                    <Text style={[s.subjectPillText, selectedSubject === su.id && { color: su.color }]}>{su.title}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </ScrollView>
+            <View style={s.gradeRow}>
+              {GRADES.map((g) => (
+                <TouchableOpacity
+                  key={g.value}
+                  style={[
+                    s.gradeBtn,
+                    selectedGrade === g.value && { borderColor: GRADE_COLORS[g.value], backgroundColor: GRADE_COLORS[g.value] + opacity.subtle },
+                  ]}
+                  onPress={() => { setSelectedGrade(g.value); setSelectedSubject(''); }}
+                >
+                  <Text style={[s.gradeBtnText, selectedGrade === g.value && { color: GRADE_COLORS[g.value], fontWeight: fontWeight.bold }]}>
+                    {g.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={s.label}>Mata Pelajaran *</Text>
+            {filteredSubjects.length === 0 ? (
+              <Text style={s.noSubjectText}>Belum ada mata pelajaran untuk kelas ini</Text>
+            ) : (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View style={s.subjectPills}>
+                  {filteredSubjects.map((su) => (
+                    <TouchableOpacity
+                      key={su.id}
+                      style={[s.subjectPill, selectedSubject === su.id && { borderColor: su.color, backgroundColor: su.color + opacity.subtle }]}
+                      onPress={() => setSelectedSubject(su.id)}
+                    >
+                      <Text style={{ fontSize: 14 }}>{su.icon}</Text>
+                      <Text style={[s.subjectPillText, selectedSubject === su.id && { color: su.color }]}>{su.title}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
+            )}
           </View>
 
           <View style={s.section}>
@@ -309,9 +341,9 @@ const makeStyles = (c, isDark) =>
     },
     title: { color: c.text, fontSize: fontSize.xxxl, fontWeight: fontWeight.black },
     addBtn: {
-      backgroundColor: c.admin + '22', borderRadius: radius.full,
+      backgroundColor: c.admin + opacity.subtle, borderRadius: radius.full,
       paddingHorizontal: spacing.md, paddingVertical: spacing.xs + 2,
-      borderWidth: 1, borderColor: c.admin + '55',
+      borderWidth: 1, borderColor: c.admin + opacity.muted,
     },
     addBtnText: { color: c.admin, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
@@ -335,9 +367,9 @@ const makeStyles = (c, isDark) =>
     emptyIcon: { fontSize: 48 },
     emptyText: { color: c.textMuted, fontSize: fontSize.md, textAlign: 'center' },
     emptyBtn: {
-      backgroundColor: c.admin + '22', borderRadius: radius.md,
+      backgroundColor: c.admin + opacity.subtle, borderRadius: radius.md,
       paddingHorizontal: spacing.xl, paddingVertical: spacing.sm,
-      borderWidth: 1, borderColor: c.admin + '55',
+      borderWidth: 1, borderColor: c.admin + opacity.muted,
     },
     emptyBtnText: { color: c.admin, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
 
@@ -350,7 +382,7 @@ const makeStyles = (c, isDark) =>
       flex: 1, borderRadius: radius.md, borderWidth: 1, borderColor: c.border,
       backgroundColor: c.bgCard, padding: spacing.md,
     },
-    typeToggleBtnActive: { borderColor: c.admin, backgroundColor: c.admin + '18' },
+    typeToggleBtnActive: { borderColor: c.admin, backgroundColor: c.admin + opacity.tint },
     typeToggleBtnText: { color: c.textMuted, fontSize: fontSize.sm, fontWeight: fontWeight.bold, marginBottom: 2 },
     typeToggleBtnTextActive: { color: c.admin },
     typeToggleHint: { color: c.textFaint, fontSize: 10, lineHeight: 14 },
@@ -368,6 +400,14 @@ const makeStyles = (c, isDark) =>
     },
     textarea: { minHeight: 72 },
     row: { flexDirection: 'row' },
+    gradeRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
+    gradeBtn: {
+      flex: 1, alignItems: 'center', paddingVertical: spacing.sm,
+      borderRadius: radius.md, borderWidth: 1, borderColor: c.border,
+      backgroundColor: c.bg,
+    },
+    gradeBtnText: { color: c.textMuted, fontSize: fontSize.sm },
+    noSubjectText: { color: c.textFaint, fontSize: fontSize.sm, marginTop: spacing.xs },
     subjectPills: { flexDirection: 'row', gap: spacing.sm, paddingVertical: spacing.xs },
     subjectPill: {
       flexDirection: 'row', alignItems: 'center', gap: spacing.xs,
@@ -387,9 +427,9 @@ const makeStyles = (c, isDark) =>
     optInput: { flex: 1, marginBottom: 0 },
     correctHint: { color: c.textFaint, fontSize: fontSize.xs, marginTop: spacing.xs, marginBottom: spacing.md },
     addQBtn: {
-      backgroundColor: c.accent + '22', borderRadius: radius.md,
+      backgroundColor: c.accent + opacity.subtle, borderRadius: radius.md,
       paddingVertical: spacing.md, alignItems: 'center',
-      borderWidth: 1, borderColor: c.accent + '55',
+      borderWidth: 1, borderColor: c.accent + opacity.muted,
     },
     addQBtnText: { color: c.accent, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     qRow: {
@@ -400,7 +440,7 @@ const makeStyles = (c, isDark) =>
     },
     qNum: {
       width: 28, height: 28, borderRadius: 14,
-      backgroundColor: c.accent + '22', borderWidth: 1, borderColor: c.accent + '55',
+      backgroundColor: c.accent + opacity.subtle, borderWidth: 1, borderColor: c.accent + opacity.muted,
       alignItems: 'center', justifyContent: 'center',
     },
     qNumText: { color: c.accent, fontSize: fontSize.xs, fontWeight: fontWeight.black },

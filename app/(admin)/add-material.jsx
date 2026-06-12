@@ -8,7 +8,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useData } from '../../src/contexts/DataContext';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 const TYPES = [
   { key: 'pdf',   label: 'PDF',    icon: '📄', placeholder: 'https://drive.google.com/file/d/.../view' },
@@ -91,7 +92,7 @@ export default function AddMaterialScreen() {
           <Text style={s.pageTitle}>Tambah Materi</Text>
 
           {subject && (
-            <View style={[s.subjectBadge, { backgroundColor: subject.color + '22', borderColor: subject.color + '55' }]}>
+            <View style={[s.subjectBadge, { backgroundColor: subject.color + opacity.subtle, borderColor: subject.color + opacity.muted }]}>
               <Text>{subject.icon}</Text>
               <Text style={[s.subjectBadgeText, { color: subject.color }]}>{subject.title}</Text>
             </View>
@@ -103,7 +104,7 @@ export default function AddMaterialScreen() {
               {TYPES.map((t) => (
                 <TouchableOpacity
                   key={t.key}
-                  style={[s.typeBtn, type === t.key && { backgroundColor: tc(t.key) + '22', borderColor: tc(t.key) }]}
+                  style={[s.typeBtn, type === t.key && { backgroundColor: tc(t.key) + opacity.subtle, borderColor: tc(t.key) }]}
                   onPress={() => { setType(t.key); setFileUrl(''); }}
                 >
                   <Text style={{ fontSize: 20 }}>{t.icon}</Text>
@@ -155,7 +156,7 @@ export default function AddMaterialScreen() {
                   autoCapitalize="none"
                   keyboardType="url"
                 />
-                <View style={[s.hintBox, { borderColor: tc(type) + '44', backgroundColor: tc(type) + '0d' }]}>
+                <View style={[s.hintBox, { borderColor: tc(type) + opacity.soft, backgroundColor: tc(type) + '0d' }]}>
                   <Text style={[s.hintTitle, { color: tc(type) }]}>
                     📋 Cara mendapatkan link {type === 'pdf' ? 'PDF' : 'Video'}:
                   </Text>
@@ -170,7 +171,7 @@ export default function AddMaterialScreen() {
             )}
 
             {type === 'notes' && (
-              <View style={[s.hintBox, { borderColor: colors.accent + '44', backgroundColor: colors.accent + '0d' }]}>
+              <View style={[s.hintBox, { borderColor: colors.accent + opacity.soft, backgroundColor: colors.accent + '0d' }]}>
                 <Text style={[s.hintTitle, { color: colors.accent }]}>📝 Tentang tipe Catatan</Text>
                 <Text style={s.hintLine}>Tipe catatan menampilkan deskripsi materi langsung ke siswa tanpa perlu link eksternal.</Text>
                 <Text style={s.hintLine}>Tulis isi catatan lengkap di kolom Deskripsi di atas.</Text>

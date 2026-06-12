@@ -2,10 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { useData } from '../../src/contexts/DataContext';
-import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight, getShadow } from '../../utils/theme';
+import { useAuth } from '../../../src/contexts/AuthContext';
+import { useData } from '../../../src/contexts/DataContext';
+import { useTheme } from '../../../src/contexts/ThemeContext';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../../utils/theme';
+
 
 const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 function fmtDate(s) {
@@ -55,18 +56,6 @@ export default function TestsScreen() {
       {/* Header */}
       <View style={s.header}>
         <Text style={s.title}>Ujian</Text>
-
-        {/* Stat boxes */}
-        <View style={s.statsRow}>
-          <View style={s.statBox}>
-            <Text style={[s.statValue, { color: colors.accent }]}>{upcoming.length}</Text>
-            <Text style={s.statLabel}>Mendatang</Text>
-          </View>
-          <View style={s.statBox}>
-            <Text style={[s.statValue, { color: colors.textMuted }]}>{past.length}</Text>
-            <Text style={s.statLabel}>Sudah lewat</Text>
-          </View>
-        </View>
 
         {/* Filter pills */}
         <View style={s.filterRow}>
@@ -134,7 +123,7 @@ export default function TestsScreen() {
             >
               {/* Top row: icon + info + badge */}
               <View style={s.cardTop}>
-                <View style={[s.iconBox, { backgroundColor: (sub?.color || colors.accent) + '22' }]}>
+                <View style={[s.iconBox, { backgroundColor: (sub?.color || colors.accent) + opacity.subtle }]}>
                   <Text style={{ fontSize: 24 }}>{sub?.icon || '📝'}</Text>
                 </View>
                 <View style={s.cardInfo}>
@@ -147,7 +136,7 @@ export default function TestsScreen() {
               </View>
 
               {/* Date row */}
-              <View style={[s.dateRow, { backgroundColor: urgencyColor + '12', borderColor: urgencyColor + '44' }]}>
+              <View style={[s.dateRow, { backgroundColor: urgencyColor + '12', borderColor: urgencyColor + opacity.soft }]}>
                 <Text style={s.dateIcon}>📅</Text>
                 <Text style={[s.dateText, { color: urgencyColor }]}>
                   {fmtDate(exam.date) ?? 'Tanggal belum ditentukan'}
@@ -159,11 +148,6 @@ export default function TestsScreen() {
               {exam.description ? (
                 <Text style={s.cardDesc} numberOfLines={2}>{exam.description}</Text>
               ) : null}
-
-              {/* Optional question count */}
-              {exam.questions?.length > 0 && (
-                <Text style={s.questionHint}>❓ {exam.questions.length} contoh soal tersedia</Text>
-              )}
 
               {/* Materials preparation chips */}
               {examMaterials.length > 0 && (
@@ -195,7 +179,6 @@ const makeStyles = (c, isDark) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.bg },
 
-    // Header
     header: {
       backgroundColor: c.bgCard,
       padding: spacing.lg,
@@ -210,27 +193,6 @@ const makeStyles = (c, isDark) =>
       marginBottom: spacing.md,
     },
 
-    // Stats
-    statsRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
-    statBox: {
-      flex: 1,
-      backgroundColor: c.bgElevated,
-      borderRadius: radius.md,
-      padding: spacing.md,
-      alignItems: 'center',
-    },
-    statValue: {
-      fontSize: fontSize.xxl,
-      fontWeight: fontWeight.black,
-    },
-    statLabel: {
-      color: c.textMuted,
-      fontSize: fontSize.xs,
-      marginTop: 2,
-      textAlign: 'center',
-    },
-
-    // Filter pills
     filterRow: { flexDirection: 'row', gap: spacing.sm },
     filterBtn: {
       paddingHorizontal: spacing.md,
@@ -254,10 +216,8 @@ const makeStyles = (c, isDark) =>
       fontWeight: fontWeight.bold,
     },
 
-    // List
     list: { padding: spacing.lg, paddingBottom: spacing.xxl },
 
-    // Card
     card: {
       backgroundColor: c.bgCard,
       borderRadius: radius.lg,
@@ -285,18 +245,16 @@ const makeStyles = (c, isDark) =>
     },
     cardSub: { color: c.textMuted, fontSize: fontSize.xs, marginTop: 2 },
 
-    // Prep badge
     prepBadge: {
-      backgroundColor: c.accent + '22',
+      backgroundColor: c.accent + opacity.subtle,
       borderRadius: radius.full,
       paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
       borderWidth: 1,
-      borderColor: c.accent + '55',
+      borderColor: c.accent + opacity.muted,
     },
     prepText: { color: c.accent, fontSize: fontSize.xs, fontWeight: fontWeight.bold },
 
-    // Date row
     dateRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -309,13 +267,8 @@ const makeStyles = (c, isDark) =>
     dateIcon: { fontSize: 13 },
     dateText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
 
-    // Description
     cardDesc: { color: c.textMuted, fontSize: fontSize.sm },
 
-    // Question hint
-    questionHint: { color: c.textFaint, fontSize: fontSize.xs },
-
-    // Materials
     materialsSection: {
       paddingTop: spacing.xs,
       borderTopWidth: 1,
@@ -331,17 +284,16 @@ const makeStyles = (c, isDark) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: 4,
-      backgroundColor: c.accent + '18',
+      backgroundColor: c.accent + opacity.tint,
       borderRadius: radius.full,
       paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
       borderWidth: 1,
-      borderColor: c.accent + '44',
+      borderColor: c.accent + opacity.soft,
     },
     materialChipIcon: { fontSize: 12 },
     materialChipText: { color: c.accent, fontSize: fontSize.xs, maxWidth: 120 },
 
-    // Empty state
     empty: {
       alignItems: 'center',
       paddingVertical: spacing.xxl,

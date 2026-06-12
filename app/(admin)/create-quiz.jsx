@@ -7,7 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useData } from '../../src/contexts/DataContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, fontSize, fontWeight, radius } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 export default function CreateQuizScreen() {
   const { colors, isDark } = useTheme();
@@ -118,7 +119,7 @@ export default function CreateQuizScreen() {
           </TouchableOpacity>
           <Text style={s.pageTitle}>{quizType === 'exam' ? 'Tambah Ujian' : 'Buat Kuis Baru'}</Text>
           {subject && (
-            <View style={[s.subjectBadge, { backgroundColor: subject.color + '22', borderColor: subject.color + '55' }]}>
+            <View style={[s.subjectBadge, { backgroundColor: subject.color + opacity.subtle, borderColor: subject.color + opacity.muted }]}>
               <Text style={{ fontSize: 14 }}>{subject.icon}</Text>
               <Text style={[s.subjectBadgeText, { color: subject.color }]}>{subject.title}</Text>
             </View>
@@ -271,7 +272,7 @@ export default function CreateQuizScreen() {
             <View style={s.card}>
               <View style={s.cardTitleRow}>
                 <Text style={s.cardTitle}>📝 Daftar Soal ({questions.length})</Text>
-                <View style={[s.countBadge, { backgroundColor: colors.success + '22', borderColor: colors.success + '55' }]}>
+                <View style={[s.countBadge, { backgroundColor: colors.success + opacity.subtle, borderColor: colors.success + opacity.muted }]}>
                   <Text style={[s.countText, { color: colors.success }]}>{questions.length} soal</Text>
                 </View>
               </View>
@@ -299,7 +300,7 @@ export default function CreateQuizScreen() {
                     {q.options.map((opt, oi) => (
                       <View key={oi} style={[
                         s.qOption,
-                        oi === q.correct && { backgroundColor: colors.success + '22', borderColor: colors.success + '55' },
+                        oi === q.correct && { backgroundColor: colors.success + opacity.subtle, borderColor: colors.success + opacity.muted },
                       ]}>
                         <Text style={s.qOptionLetter}>{String.fromCharCode(65 + oi)}.</Text>
                         <Text style={[s.qOptionText, oi === q.correct && { color: colors.success }]}>
@@ -416,9 +417,9 @@ const makeStyles = (c, isDark) =>
     radioInner: { width: 11, height: 11, borderRadius: 6, backgroundColor: c.success },
     optInput: { flex: 1, marginBottom: 0 },
     addQBtn: {
-      marginTop: spacing.md, backgroundColor: c.accent + '22',
+      marginTop: spacing.md, backgroundColor: c.accent + opacity.subtle,
       borderRadius: radius.md, paddingVertical: spacing.md,
-      alignItems: 'center', borderWidth: 1, borderColor: c.accent + '55',
+      alignItems: 'center', borderWidth: 1, borderColor: c.accent + opacity.muted,
     },
     addQBtnText: { color: c.accent, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     countBadge: {
@@ -434,7 +435,7 @@ const makeStyles = (c, isDark) =>
     qHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, marginBottom: spacing.sm },
     qNumBadge: {
       width: 28, height: 28, borderRadius: 14,
-      backgroundColor: c.accent + '22', borderWidth: 1, borderColor: c.accent + '55',
+      backgroundColor: c.accent + opacity.subtle, borderWidth: 1, borderColor: c.accent + opacity.muted,
       alignItems: 'center', justifyContent: 'center', flexShrink: 0,
     },
     qNumText: { color: c.accent, fontSize: fontSize.xs, fontWeight: fontWeight.black },

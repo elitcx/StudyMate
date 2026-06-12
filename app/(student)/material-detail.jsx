@@ -8,7 +8,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useData } from '../../src/contexts/DataContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 export default function MaterialDetailScreen() {
   const { colors, isDark } = useTheme();
@@ -86,16 +87,16 @@ export default function MaterialDetailScreen() {
 
         <View style={[s.header, { borderTopColor: typeColor, borderTopWidth: 4 }]}>
           <View style={s.headerTop}>
-            <View style={[s.typeIconBox, { backgroundColor: typeColor + '22' }]}>
+            <View style={[s.typeIconBox, { backgroundColor: typeColor + opacity.subtle }]}>
               <Text style={{ fontSize: 32 }}>{typeIcon}</Text>
             </View>
-            <View style={[s.typePill, { backgroundColor: typeColor + '22', borderColor: typeColor + '55' }]}>
+            <View style={[s.typePill, { backgroundColor: typeColor + opacity.subtle, borderColor: typeColor + opacity.muted }]}>
               <Text style={[s.typePillText, { color: typeColor }]}>{typeLabel}</Text>
             </View>
           </View>
           <Text style={s.title}>{mat.title}</Text>
           {subject && (
-            <View style={[s.subjectTag, { backgroundColor: subject.color + '22' }]}>
+            <View style={[s.subjectTag, { backgroundColor: subject.color + opacity.subtle }]}>
               <Text style={[s.subjectTagText, { color: subject.color }]}>
                 {subject.icon} {subject.title}
               </Text>
@@ -143,7 +144,7 @@ export default function MaterialDetailScreen() {
         {mat.type === 'pdf' && (
           <View style={s.section}>
             <Text style={s.sectionTitle}>Tentang Dokumen</Text>
-            <View style={[s.infoCard, { borderColor: typeColor + '44' }]}>
+            <View style={[s.infoCard, { borderColor: typeColor + opacity.soft }]}>
               <InfoRow s={s} icon="📃" label="Jumlah Halaman" value={mat.pages ? `${mat.pages} halaman` : 'Tidak diketahui'} />
               <InfoRow s={s} icon="👤" label="Penulis"        value={mat.author} />
               <InfoRow s={s} icon="📅" label="Tanggal Upload" value={mat.createdAt || '—'} last />
@@ -159,7 +160,7 @@ export default function MaterialDetailScreen() {
         {mat.type === 'video' && (
           <View style={s.section}>
             <Text style={s.sectionTitle}>Tentang Video</Text>
-            <View style={[s.videoThumb, { backgroundColor: typeColor + '22', borderColor: typeColor + '44' }]}>
+            <View style={[s.videoThumb, { backgroundColor: typeColor + opacity.subtle, borderColor: typeColor + opacity.soft }]}>
               <Text style={s.videoPlayIcon}>▶</Text>
               <Text style={[s.videoDuration, { color: typeColor }]}>{mat.duration || '—'}</Text>
             </View>
@@ -174,14 +175,14 @@ export default function MaterialDetailScreen() {
         {mat.type === 'notes' && (
           <View style={s.section}>
             <Text style={s.sectionTitle}>Isi Catatan</Text>
-            <View style={[s.notesCard, { borderColor: typeColor + '44' }]}>
+            <View style={[s.notesCard, { borderColor: typeColor + opacity.soft }]}>
               <Text style={s.notesText}>{mat.description}</Text>
               {mat.content && <Text style={s.notesContent}>{mat.content}</Text>}
             </View>
           </View>
         )}
 
-        <View style={[s.tipCard, { borderColor: colors.warning + '44', backgroundColor: colors.warning + '0a' }]}>
+        <View style={[s.tipCard, { borderColor: colors.warning + opacity.soft, backgroundColor: colors.warning + '0a' }]}>
           <Text style={s.tipCardIcon}>💡</Text>
           <View style={s.tipCardInfo}>
             <Text style={s.tipCardTitle}>Tips Belajar</Text>

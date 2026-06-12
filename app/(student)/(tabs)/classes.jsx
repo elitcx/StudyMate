@@ -5,10 +5,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { useData } from '../../src/contexts/DataContext';
-import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight, getShadow } from '../../utils/theme';
+import { useAuth } from '../../../src/contexts/AuthContext';
+import { useData } from '../../../src/contexts/DataContext';
+import { useTheme } from '../../../src/contexts/ThemeContext';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../../utils/theme';
+
 
 const GRADE_COLORS = { X: '#38bdf8', XI: '#a78bfa', XII: '#4ade80' };
 
@@ -65,8 +66,8 @@ export default function ClassesScreen() {
           <Text style={s.title}>Kelas</Text>
           {myGrade && (
             <View style={[s.myGradeBadge, {
-              backgroundColor: (GRADE_COLORS[myGrade] || colors.accent) + '22',
-              borderColor: (GRADE_COLORS[myGrade] || colors.accent) + '66',
+              backgroundColor: (GRADE_COLORS[myGrade] || colors.accent) + opacity.subtle,
+              borderColor: (GRADE_COLORS[myGrade] || colors.accent) + opacity.muted,
             }]}>
               <Text style={[s.myGradeBadgeText, { color: GRADE_COLORS[myGrade] || colors.accent }]}>
                 Kelas {myGrade}
@@ -153,7 +154,7 @@ export default function ClassesScreen() {
             >
               {/* Icon + info */}
               <View style={s.cardTop}>
-                <View style={[s.iconBox, { backgroundColor: sub.color + '18' }]}>
+                <View style={[s.iconBox, { backgroundColor: sub.color + opacity.tint }]}>
                   <Text style={s.iconEmoji}>{sub.icon}</Text>
                 </View>
                 <View style={s.cardInfo}>
@@ -161,8 +162,8 @@ export default function ClassesScreen() {
                     <Text style={s.cardTitle}>{sub.title}</Text>
                     {sub.grade && (
                       <View style={[s.gradeBadge, {
-                        backgroundColor: (GRADE_COLORS[sub.grade] || colors.accent) + '22',
-                        borderColor: (GRADE_COLORS[sub.grade] || colors.accent) + '55',
+                        backgroundColor: (GRADE_COLORS[sub.grade] || colors.accent) + opacity.subtle,
+                        borderColor: (GRADE_COLORS[sub.grade] || colors.accent) + opacity.muted,
                       }]}>
                         <Text style={[s.gradeBadgeText, { color: GRADE_COLORS[sub.grade] || colors.accent }]}>
                           {sub.grade}
@@ -176,19 +177,6 @@ export default function ClassesScreen() {
                     )}
                   </View>
                   <Text style={s.cardDesc} numberOfLines={2}>{sub.description}</Text>
-                  <View style={s.cardMeta}>
-                    <Text style={s.metaItem}>📄 {sub.materialsCount} materi</Text>
-                    <Text style={s.metaDot}>·</Text>
-                    <Text style={s.metaItem}>✏️ {sub.quizzesCount} kuis</Text>
-                    {isEnrolled && subQuizzes.length > 0 && (
-                      <>
-                        <Text style={s.metaDot}>·</Text>
-                        <Text style={[s.metaItem, { color: colors.success }]}>
-                          {completedCount}/{subQuizzes.length} selesai
-                        </Text>
-                      </>
-                    )}
-                  </View>
                 </View>
               </View>
 
@@ -219,8 +207,8 @@ export default function ClassesScreen() {
                   style={[
                     s.enrollBtn,
                     isEnrolled
-                      ? { backgroundColor: colors.danger + '15', borderColor: colors.danger + '55' }
-                      : { backgroundColor: sub.color + '22', borderColor: sub.color + '55' },
+                      ? { backgroundColor: colors.danger + '15', borderColor: colors.danger + opacity.muted }
+                      : { backgroundColor: sub.color + opacity.subtle, borderColor: sub.color + opacity.muted },
                   ]}
                   onPress={() => handleEnroll(sub)}
                 >
@@ -258,7 +246,7 @@ const makeStyles = (c, isDark) => {
       backgroundColor: c.warning + '15',
       borderRadius: radius.md,
       borderWidth: 1,
-      borderColor: c.warning + '44',
+      borderColor: c.warning + opacity.soft,
       padding: spacing.sm,
       marginBottom: spacing.sm,
     },
@@ -318,18 +306,12 @@ const makeStyles = (c, isDark) => {
     },
     gradeBadgeText: { fontSize: 10, fontWeight: fontWeight.black },
     enrolledBadge: {
-      backgroundColor: c.success + '22', borderRadius: radius.full,
+      backgroundColor: c.success + opacity.subtle, borderRadius: radius.full,
       paddingHorizontal: spacing.sm, paddingVertical: 2,
-      borderWidth: 1, borderColor: c.success + '55',
+      borderWidth: 1, borderColor: c.success + opacity.muted,
     },
     enrolledText: { color: c.success, fontSize: 10, fontWeight: fontWeight.bold },
-    cardDesc: { color: c.textMuted, fontSize: fontSize.sm, marginBottom: spacing.xs },
-    cardMeta: {
-      flexDirection: 'row', alignItems: 'center',
-      flexWrap: 'wrap', gap: spacing.xs,
-    },
-    metaItem: { color: c.textFaint, fontSize: fontSize.xs },
-    metaDot: { color: c.textFaint, fontSize: fontSize.xs },
+    cardDesc: { color: c.textMuted, fontSize: fontSize.sm },
 
     progressWrap: {
       flexDirection: 'row', alignItems: 'center', gap: spacing.sm,

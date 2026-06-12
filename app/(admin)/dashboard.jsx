@@ -8,7 +8,8 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { useData } from '../../src/contexts/DataContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight, getShadow } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 function fmtDate(s) {
@@ -57,7 +58,7 @@ export default function AdminDashboard() {
           <Text style={s.greeting}>Dashboard Admin</Text>
           <Text style={s.name}>Halo, {user?.name?.split(' ')[0]} 👩‍🏫</Text>
         </View>
-        <View style={[s.avatar, { backgroundColor: colors.admin + '18', borderColor: colors.admin + '40' }]}>
+        <View style={[s.avatar, { backgroundColor: colors.admin + opacity.tint, borderColor: colors.admin + '40' }]}>
           <Text style={{ fontSize: 22 }}>{user?.avatar}</Text>
         </View>
       </View>
@@ -117,14 +118,14 @@ export default function AdminDashboard() {
                 onPress={() => setExpandedSubject(isOpen ? null : sub.id)}
                 activeOpacity={0.8}
               >
-                <View style={[s.subIconBox, { backgroundColor: sub.color + '22' }]}>
+                <View style={[s.subIconBox, { backgroundColor: sub.color + opacity.subtle }]}>
                   <Text style={{ fontSize: 20 }}>{sub.icon}</Text>
                 </View>
                 <View style={s.subInfo}>
                   <View style={s.subTitleRow}>
                     <Text style={s.subTitle}>{sub.title}</Text>
                     {sub.grade ? (
-                      <View style={[s.gradeBadge, { backgroundColor: sub.color + '22', borderColor: sub.color + '55' }]}>
+                      <View style={[s.gradeBadge, { backgroundColor: sub.color + opacity.subtle, borderColor: sub.color + opacity.muted }]}>
                         <Text style={[s.gradeBadgeText, { color: sub.color }]}>{sub.grade}</Text>
                       </View>
                     ) : null}
@@ -132,7 +133,7 @@ export default function AdminDashboard() {
                   <Text style={s.subMeta}>{sub.exams.length} ujian · {sub.materialsCount} materi</Text>
                 </View>
                 <TouchableOpacity
-                  style={[s.addExamBtn, { backgroundColor: sub.color + '18', borderColor: sub.color + '44' }]}
+                  style={[s.addExamBtn, { backgroundColor: sub.color + opacity.tint, borderColor: sub.color + opacity.soft }]}
                   onPress={() => router.push({ pathname: '/(admin)/create-quiz', params: { subjectId: sub.id } })}
                 >
                   <Text style={[s.addExamBtnText, { color: sub.color }]}>+ Ujian</Text>
@@ -169,7 +170,7 @@ export default function AdminDashboard() {
                             <View style={s.examTitleRow}>
                               <Text style={s.examTitle}>{exam.title}</Text>
                               {urgencyLabel ? (
-                                <View style={[s.urgencyBadge, { backgroundColor: urgencyColor + '22', borderColor: urgencyColor + '55' }]}>
+                                <View style={[s.urgencyBadge, { backgroundColor: urgencyColor + opacity.subtle, borderColor: urgencyColor + opacity.muted }]}>
                                   <Text style={[s.urgencyTxt, { color: urgencyColor }]}>{urgencyLabel}</Text>
                                 </View>
                               ) : null}
@@ -251,9 +252,9 @@ const makeStyles = (c, isDark) => {
     },
     sectionTitle: { color: c.text, fontSize: fontSize.md, fontWeight: fontWeight.bold },
     addBtn: {
-      backgroundColor: c.admin + '18', borderRadius: radius.full,
+      backgroundColor: c.admin + opacity.tint, borderRadius: radius.full,
       paddingHorizontal: spacing.md, paddingVertical: spacing.xs + 2,
-      borderWidth: 1, borderColor: c.admin + '55',
+      borderWidth: 1, borderColor: c.admin + opacity.muted,
     },
     addBtnText: { color: c.admin, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
 
@@ -322,13 +323,13 @@ const makeStyles = (c, isDark) => {
     examMeta: { color: c.textFaint, fontSize: fontSize.xs },
     examActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
     editBtn: {
-      backgroundColor: c.admin + '18', borderRadius: radius.sm,
+      backgroundColor: c.admin + opacity.tint, borderRadius: radius.sm,
       paddingHorizontal: spacing.sm, paddingVertical: 4,
       borderWidth: 1, borderColor: c.admin + '40',
     },
     editBtnText: { color: c.admin, fontSize: fontSize.xs, fontWeight: fontWeight.bold },
     deleteBtn: {
-      backgroundColor: c.danger + '18', borderRadius: radius.sm,
+      backgroundColor: c.danger + opacity.tint, borderRadius: radius.sm,
       paddingHorizontal: spacing.sm, paddingVertical: 4,
       borderWidth: 1, borderColor: c.danger + '40',
     },
@@ -339,9 +340,9 @@ const makeStyles = (c, isDark) => {
     emptyIcon: { fontSize: 48 },
     emptyText: { color: c.textMuted, fontSize: fontSize.md, textAlign: 'center', lineHeight: 22 },
     emptyBtn: {
-      backgroundColor: c.admin + '18', borderRadius: radius.md,
+      backgroundColor: c.admin + opacity.tint, borderRadius: radius.md,
       paddingHorizontal: spacing.xl, paddingVertical: spacing.sm,
-      borderWidth: 1, borderColor: c.admin + '55',
+      borderWidth: 1, borderColor: c.admin + opacity.muted,
     },
     emptyBtnText: { color: c.admin, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
   });

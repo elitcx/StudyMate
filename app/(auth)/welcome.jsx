@@ -1,22 +1,16 @@
 import React, { useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  KeyboardAvoidingView, Platform, ScrollView,
+  KeyboardAvoidingView, Platform, ScrollView, Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight, getShadow } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const s = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
-
-  const features = [
-    { icon: '📚', label: 'Materi Pelajaran', desc: 'Akses semua bahan belajar' },
-    { icon: '✏️', label: 'Bank Soal', desc: 'Latihan soal per mata pelajaran' },
-    { icon: '📅', label: 'Jadwal Ujian', desc: 'Pantau ujian yang akan datang' },
-  ];
 
   return (
     <KeyboardAvoidingView
@@ -25,21 +19,9 @@ export default function WelcomeScreen() {
     >
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
         <View style={s.brand}>
-          <View style={s.logoCircle}>
-            <Text style={s.logoEmoji}>📚</Text>
-          </View>
+          <Image source={require('../../assets/icon.png')} style={s.logoImage} />
           <Text style={s.appName}>StudyMate</Text>
           <Text style={s.tagline}>Platform belajar cerdas untuk siswa</Text>
-        </View>
-
-        <View style={s.featuresRow}>
-          {features.map((f) => (
-            <View key={f.label} style={s.featureCard}>
-              <Text style={s.featureIcon}>{f.icon}</Text>
-              <Text style={s.featureLabel}>{f.label}</Text>
-              <Text style={s.featureDesc}>{f.desc}</Text>
-            </View>
-          ))}
         </View>
 
         <View style={s.actions}>
@@ -58,115 +40,81 @@ export default function WelcomeScreen() {
           >
             <Text style={s.secondaryBtnText}>Daftar Akun Baru</Text>
           </TouchableOpacity>
-
-          <Text style={s.hint}>
-            Akun demo: student@studymate.com / student123
-          </Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
-const makeStyles = (c, isDark) => {
-  const shadow = getShadow(isDark);
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: c.bg,
-    },
-    scroll: {
-      flexGrow: 1,
-      paddingHorizontal: spacing.lg,
-      justifyContent: 'center',
-      paddingVertical: spacing.xxl,
-    },
-    brand: {
-      alignItems: 'center',
-      marginBottom: spacing.xxl,
-    },
-    logoCircle: {
-      width: 96,
-      height: 96,
-      borderRadius: 48,
-      backgroundColor: c.accent + '18',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: spacing.md,
-    },
-    logoEmoji: { fontSize: 44 },
-    appName: {
-      fontSize: fontSize.xxxl,
-      fontWeight: fontWeight.black,
-      color: c.text,
-      letterSpacing: -0.5,
-    },
-    tagline: {
-      fontSize: fontSize.sm,
-      color: c.textMuted,
-      marginTop: spacing.xs,
-      textAlign: 'center',
-    },
-    featuresRow: {
-      flexDirection: 'row',
-      gap: spacing.sm,
-      marginBottom: spacing.xl,
-    },
-    featureCard: {
-      flex: 1,
-      backgroundColor: c.bgCard,
-      borderRadius: radius.md,
-      padding: spacing.md,
-      alignItems: 'center',
-      ...(isDark
-        ? { borderWidth: 1, borderColor: c.border }
-        : shadow.sm),
-    },
-    featureIcon: { fontSize: 24, marginBottom: spacing.xs },
-    featureLabel: {
-      color: c.text,
-      fontSize: fontSize.xs,
-      fontWeight: fontWeight.bold,
-      textAlign: 'center',
-      marginBottom: 2,
-    },
-    featureDesc: {
-      color: c.textFaint,
-      fontSize: 10,
-      textAlign: 'center',
-    },
-    actions: { gap: spacing.sm },
-    primaryBtn: {
-      backgroundColor: c.accent,
-      borderRadius: radius.md,
-      height: 52,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    primaryBtnText: {
-      color: c.white,
-      fontSize: fontSize.md,
-      fontWeight: fontWeight.bold,
-    },
-    secondaryBtn: {
-      backgroundColor: 'transparent',
-      borderRadius: radius.md,
-      height: 52,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderWidth: 1,
-      borderColor: c.border,
-    },
-    secondaryBtnText: {
-      color: c.text,
-      fontSize: fontSize.md,
-      fontWeight: fontWeight.semibold,
-    },
-    hint: {
-      color: c.textFaint,
-      fontSize: fontSize.xs,
-      textAlign: 'center',
-      marginTop: spacing.sm,
-    },
-  });
-};
+const makeStyles = (c, isDark) => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: c.bg,
+  },
+  scroll: {
+    flexGrow: 1,
+    paddingHorizontal: spacing.lg,
+    justifyContent: 'center',
+    paddingVertical: spacing.xxl,
+  },
+  brand: {
+    alignItems: 'center',
+    marginBottom: spacing.xxl + spacing.lg,
+  },
+  logoImage: {
+    width: 104,
+    height: 104,
+    borderRadius: 26,
+    marginBottom: spacing.lg,
+  },
+  appName: {
+    fontSize: 34,
+    fontWeight: fontWeight.black,
+    color: c.text,
+    letterSpacing: -1,
+    lineHeight: 40,
+  },
+  tagline: {
+    fontSize: fontSize.md,
+    color: c.textMuted,
+    marginTop: spacing.xs,
+    textAlign: 'center',
+    lineHeight: 22,
+    letterSpacing: 0.1,
+    paddingHorizontal: spacing.xl,
+  },
+  actions: { gap: 12 },
+  primaryBtn: {
+    backgroundColor: c.accent,
+    borderRadius: radius.lg,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: c.accent,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: isDark ? 0.4 : 0.15,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  primaryBtnText: {
+    color: c.white,
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.bold,
+    letterSpacing: 0.3,
+  },
+  secondaryBtn: {
+    backgroundColor: isDark ? c.bgCard : 'transparent',
+    borderRadius: radius.lg,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: c.border,
+  },
+  secondaryBtnText: {
+    color: c.textMuted,
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
+    letterSpacing: 0.1,
+  },
+});

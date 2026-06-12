@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useData } from '../../src/contexts/DataContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 const GRADE_COLORS = { X: '#38bdf8', XI: '#a78bfa', XII: '#4ade80' };
 
@@ -82,14 +83,14 @@ export default function AdminClassesScreen() {
                 onPress={() => setExpanded(isOpen ? null : sub.id)}
                 activeOpacity={0.8}
               >
-                <View style={[s.subjectIcon, { backgroundColor: sub.color + '22' }]}>
+                <View style={[s.subjectIcon, { backgroundColor: sub.color + opacity.subtle }]}>
                   <Text style={{ fontSize: 22 }}>{sub.icon}</Text>
                 </View>
                 <View style={s.subjectInfo}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' }}>
                     <Text style={s.subjectTitle}>{sub.title}</Text>
                     {sub.grade && (
-                      <View style={[s.gradeBadge, { backgroundColor: (GRADE_COLORS[sub.grade] || colors.accent) + '22', borderColor: (GRADE_COLORS[sub.grade] || colors.accent) + '55' }]}>
+                      <View style={[s.gradeBadge, { backgroundColor: (GRADE_COLORS[sub.grade] || colors.accent) + opacity.subtle, borderColor: (GRADE_COLORS[sub.grade] || colors.accent) + opacity.muted }]}>
                         <Text style={[s.gradeBadgeText, { color: GRADE_COLORS[sub.grade] || colors.accent }]}>
                           {sub.grade}
                         </Text>
@@ -185,9 +186,9 @@ const makeStyles = (c, isDark) =>
     },
     title: { color: c.text, fontSize: fontSize.xxxl, fontWeight: fontWeight.black },
     addBtn: {
-      backgroundColor: c.admin + '22', borderRadius: radius.full,
+      backgroundColor: c.admin + opacity.subtle, borderRadius: radius.full,
       paddingHorizontal: spacing.md, paddingVertical: spacing.xs + 2,
-      borderWidth: 1, borderColor: c.admin + '55',
+      borderWidth: 1, borderColor: c.admin + opacity.muted,
     },
     addBtnText: { color: c.admin, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
@@ -233,9 +234,9 @@ const makeStyles = (c, isDark) =>
     emptyIcon: { fontSize: 48 },
     emptyText: { color: c.textMuted, fontSize: fontSize.md, textAlign: 'center' },
     emptyBtn: {
-      backgroundColor: c.admin + '22', borderRadius: radius.md,
+      backgroundColor: c.admin + opacity.subtle, borderRadius: radius.md,
       paddingHorizontal: spacing.xl, paddingVertical: spacing.sm,
-      borderWidth: 1, borderColor: c.admin + '55',
+      borderWidth: 1, borderColor: c.admin + opacity.muted,
     },
     emptyBtnText: { color: c.admin, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
   });

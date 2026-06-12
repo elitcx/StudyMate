@@ -8,7 +8,8 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { useData } from '../../src/contexts/DataContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 function fmtDate(s) {
@@ -48,7 +49,7 @@ export default function SuperAdminDashboard() {
           <Text style={s.greeting}>Dashboard Superadmin</Text>
           <Text style={s.name}>Halo, {user?.name?.split(' ')[0]} ⚡</Text>
         </View>
-        <View style={[s.avatar, { backgroundColor: colors.superadmin + '22', borderColor: colors.superadmin + '55' }]}>
+        <View style={[s.avatar, { backgroundColor: colors.superadmin + opacity.subtle, borderColor: colors.superadmin + opacity.muted }]}>
           <Text style={{ fontSize: 22 }}>{user?.avatar}</Text>
         </View>
       </View>
@@ -126,7 +127,7 @@ export default function SuperAdminDashboard() {
                       <Text style={s.actUser}>{usr?.name}</Text>
                       <Text style={s.actDetail}>{quiz?.title} · {sub?.title}</Text>
                     </View>
-                    <View style={[s.actBadge, { backgroundColor: pc + '22', borderColor: pc + '55' }]}>
+                    <View style={[s.actBadge, { backgroundColor: pc + opacity.subtle, borderColor: pc + opacity.muted }]}>
                       <Text style={[s.actScore, { color: pc }]}>{sc.percentage}%</Text>
                     </View>
                   </View>
@@ -158,7 +159,7 @@ export default function SuperAdminDashboard() {
             return (
               <View style={[s.examCard, { borderLeftColor: sub?.color || colors.accent, borderLeftWidth: 4 }]}>
                 <View style={s.examTop}>
-                  <View style={[s.examIconBox, { backgroundColor: (sub?.color || colors.accent) + '22' }]}>
+                  <View style={[s.examIconBox, { backgroundColor: (sub?.color || colors.accent) + opacity.subtle }]}>
                     <Text style={{ fontSize: 18 }}>{sub?.icon || '📝'}</Text>
                   </View>
                   <View style={s.examInfo}>
@@ -166,7 +167,7 @@ export default function SuperAdminDashboard() {
                     <Text style={[s.examSubject, { color: sub?.color || colors.accent }]}>{sub?.title}</Text>
                   </View>
                   {avgExam !== null && (
-                    <View style={[s.avgBadge, { backgroundColor: (avgExam >= 70 ? colors.success : colors.warning) + '22' }]}>
+                    <View style={[s.avgBadge, { backgroundColor: (avgExam >= 70 ? colors.success : colors.warning) + opacity.subtle }]}>
                       <Text style={[s.avgTxt, { color: avgExam >= 70 ? colors.success : colors.warning }]}>
                         ⌀ {avgExam}%
                       </Text>
@@ -208,7 +209,7 @@ const makeStyles = (c, isDark) =>
       borderWidth: 1, borderColor: c.border,
       backgroundColor: c.bgCard, alignItems: 'center',
     },
-    toggleBtnActive: { backgroundColor: c.superadmin + '22', borderColor: c.superadmin },
+    toggleBtnActive: { backgroundColor: c.superadmin + opacity.subtle, borderColor: c.superadmin },
     toggleTxt: { color: c.textMuted, fontSize: fontSize.sm, fontWeight: fontWeight.medium },
     toggleTxtActive: { color: c.superadmin, fontWeight: fontWeight.bold },
 

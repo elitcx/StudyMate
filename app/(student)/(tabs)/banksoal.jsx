@@ -10,10 +10,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { useData } from '../../src/contexts/DataContext';
-import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight, getShadow } from '../../utils/theme';
+import { useAuth } from '../../../src/contexts/AuthContext';
+import { useData } from '../../../src/contexts/DataContext';
+import { useTheme } from '../../../src/contexts/ThemeContext';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../../utils/theme';
+
 
 export default function BankSoalScreen() {
   const { colors, isDark } = useTheme();
@@ -65,9 +66,6 @@ export default function BankSoalScreen() {
       {/* Header */}
       <View style={s.header}>
         <Text style={s.title}>Bank Soal</Text>
-        <Text style={s.subtitle}>
-          {gradeQuizzes.length} kuis · {doneCount} selesai · {pendingCount} belum
-        </Text>
       </View>
 
       {/* Search bar */}
@@ -148,14 +146,13 @@ export default function BankSoalScreen() {
         })}
       </ScrollView>
 
-      {/* Fixed-height result count — always rendered, prevents layout shift */}
-      <View style={s.resultCountWrap}>
-        {(search || selectedSubject !== 'all' || statusFilter !== 'all') ? (
+      {(search || selectedSubject !== 'all' || statusFilter !== 'all') && (
+        <View style={s.resultCountWrap}>
           <Text style={s.resultCount}>
             {filtered.length} hasil{search ? ` untuk "${search}"` : ''}
           </Text>
-        ) : null}
-      </View>
+        </View>
+      )}
 
       <FlatList
         data={filtered}
@@ -205,7 +202,7 @@ export default function BankSoalScreen() {
                 <View
                   style={[
                     s.iconBox,
-                    { backgroundColor: (sub?.color || colors.accent) + '22' },
+                    { backgroundColor: (sub?.color || colors.accent) + opacity.subtle },
                   ]}
                 >
                   <Text style={{ fontSize: 22 }}>{sub?.icon || '📝'}</Text>
@@ -216,7 +213,7 @@ export default function BankSoalScreen() {
                     <View
                       style={[
                         s.badge,
-                        { backgroundColor: pctColor + '22', borderColor: pctColor + '55' },
+                        { backgroundColor: pctColor + opacity.subtle, borderColor: pctColor + opacity.muted },
                       ]}
                     >
                       <Text style={[s.badgeText, { color: pctColor }]}>
@@ -239,26 +236,17 @@ export default function BankSoalScreen() {
                 </Text>
               ) : null}
 
-              {/* Footer meta + start/retry button */}
+              {/* Footer: meta summary + start/retry button */}
               <View style={s.quizFooter}>
-                <View style={s.footerItem}>
-                  <Text style={s.footerIcon}>❓</Text>
-                  <Text style={s.footerText}>{quiz.questions?.length || 0} soal</Text>
-                </View>
-                <View style={s.footerItem}>
-                  <Text style={s.footerIcon}>⏱</Text>
-                  <Text style={s.footerText}>{quiz.duration} menit</Text>
-                </View>
-                <View style={s.footerItem}>
-                  <Text style={s.footerIcon}>🏆</Text>
-                  <Text style={s.footerText}>{quiz.totalMarks} poin</Text>
-                </View>
+                <Text style={s.footerText}>
+                  {quiz.questions?.length || 0} soal · {quiz.duration} menit
+                </Text>
                 <View
                   style={[
                     s.startBtn,
                     isDone && {
-                      backgroundColor: colors.success + '22',
-                      borderColor: colors.success + '55',
+                      backgroundColor: colors.success + opacity.subtle,
+                      borderColor: colors.success + opacity.muted,
                     },
                   ]}
                 >
@@ -296,7 +284,6 @@ const makeStyles = (c, isDark) =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.bg },
 
-    // Header
     header: {
       paddingHorizontal: spacing.lg,
       paddingTop: spacing.lg,
@@ -307,9 +294,6 @@ const makeStyles = (c, isDark) =>
       fontSize: fontSize.xxxl,
       fontWeight: fontWeight.black,
     },
-    subtitle: { color: c.textMuted, fontSize: fontSize.sm, marginTop: 2 },
-
-    // Search
     searchWrap: {
       paddingHorizontal: spacing.lg,
       paddingTop: spacing.md,
@@ -334,7 +318,6 @@ const makeStyles = (c, isDark) =>
     },
     searchClear: { color: c.textMuted, fontSize: 16 },
 
-    // Status filter pills
     statusRow: {
       flexDirection: 'row',
       gap: spacing.sm,
@@ -350,16 +333,15 @@ const makeStyles = (c, isDark) =>
       backgroundColor: c.bgCard,
     },
     statusBtnActive: {
-      backgroundColor: c.accent + '22',
+      backgroundColor: c.accent + opacity.subtle,
       borderColor: c.accent,
     },
     statusText: { color: c.textMuted, fontSize: fontSize.xs, fontWeight: fontWeight.medium },
     statusTextActive: { color: c.accent, fontWeight: fontWeight.bold },
 
-    // Subject chips
     chips: {
       paddingHorizontal: spacing.lg,
-      paddingBottom: spacing.sm,
+      paddingBottom: 0,
       gap: spacing.sm,
     },
     chip: {
@@ -373,7 +355,7 @@ const makeStyles = (c, isDark) =>
       borderColor: c.border,
       backgroundColor: c.bgCard,
     },
-    chipActive: { backgroundColor: c.accent + '22', borderColor: c.accent },
+    chipActive: { backgroundColor: c.accent + opacity.subtle, borderColor: c.accent },
     chipText: {
       color: c.textMuted,
       fontSize: 13,
@@ -388,18 +370,15 @@ const makeStyles = (c, isDark) =>
       includeFontPadding: false,
     },
 
-    // Result count
     resultCountWrap: {
-      height: 28,
-      justifyContent: 'center',
       paddingHorizontal: spacing.lg,
+      paddingTop: spacing.xs,
+      paddingBottom: spacing.xs,
     },
     resultCount: { color: c.textFaint, fontSize: fontSize.xs },
 
-    // List
     list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
 
-    // Card
     card: {
       backgroundColor: c.bgCard,
       borderRadius: radius.lg,
@@ -443,7 +422,6 @@ const makeStyles = (c, isDark) =>
     },
     newBadgeText: { color: c.accent, fontSize: 10 },
 
-    // Quiz body
     quizTitle: {
       color: c.text,
       fontSize: fontSize.md,
@@ -452,28 +430,24 @@ const makeStyles = (c, isDark) =>
     },
     quizDesc: { color: c.textMuted, fontSize: fontSize.sm, marginBottom: spacing.md },
 
-    // Footer
     quizFooter: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: spacing.md,
+      justifyContent: 'space-between',
       marginTop: spacing.xs,
     },
-    footerItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-    footerIcon: { fontSize: 12 },
     footerText: { color: c.textFaint, fontSize: fontSize.xs },
     startBtn: {
       marginLeft: 'auto',
-      backgroundColor: c.accent + '22',
+      backgroundColor: c.accent + opacity.subtle,
       borderRadius: radius.full,
       paddingHorizontal: spacing.md,
       paddingVertical: 4,
       borderWidth: 1,
-      borderColor: c.accent + '55',
+      borderColor: c.accent + opacity.muted,
     },
     startBtnText: { color: c.accent, fontSize: fontSize.xs, fontWeight: fontWeight.bold },
 
-    // Score bar
     scoreBar: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -498,17 +472,16 @@ const makeStyles = (c, isDark) =>
       textAlign: 'right',
     },
 
-    // Empty state
     empty: { alignItems: 'center', paddingVertical: spacing.xxl, gap: spacing.md },
     emptyIcon: { fontSize: 40 },
     emptyText: { color: c.textMuted, fontSize: fontSize.md, textAlign: 'center' },
     clearBtn: {
-      backgroundColor: c.accent + '22',
+      backgroundColor: c.accent + opacity.subtle,
       borderRadius: radius.full,
       paddingHorizontal: spacing.lg,
       paddingVertical: spacing.sm,
       borderWidth: 1,
-      borderColor: c.accent + '55',
+      borderColor: c.accent + opacity.muted,
     },
     clearBtnText: { color: c.accent, fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
   });

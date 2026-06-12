@@ -6,7 +6,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 const ROLES = ['student', 'admin', 'superadmin'];
 const GRADES = ['X', 'XI', 'XII'];
@@ -136,7 +137,7 @@ export default function UsersScreen() {
             key={f.key}
             style={[
               s.filterChip,
-              roleFilter === f.key && { backgroundColor: f.color + '22', borderColor: f.color },
+              roleFilter === f.key && { backgroundColor: f.color + opacity.subtle, borderColor: f.color },
             ]}
             onPress={() => setRoleFilter(f.key)}
           >
@@ -165,9 +166,9 @@ export default function UsersScreen() {
           const meta = ROLE_META[u.role];
           const isSelf = u.id === currentUser.id;
           return (
-            <View style={[s.userCard, isSelf && { borderColor: colors.superadmin + '55' }]}>
+            <View style={[s.userCard, isSelf && { borderColor: colors.superadmin + opacity.muted }]}>
               <View style={s.userTop}>
-                <View style={[s.avatar, { backgroundColor: meta.color + '22', borderColor: meta.color + '44' }]}>
+                <View style={[s.avatar, { backgroundColor: meta.color + opacity.subtle, borderColor: meta.color + opacity.soft }]}>
                   <Text style={{ fontSize: 22 }}>{u.avatar}</Text>
                 </View>
                 <View style={s.userInfo}>
@@ -182,7 +183,7 @@ export default function UsersScreen() {
                   <Text style={s.userEmail} numberOfLines={1}>{u.email}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginTop: 2 }}>
                     {u.role === 'student' && u.grade && (
-                      <View style={[s.gradeBadge, { backgroundColor: (GRADE_COLORS[u.grade] || colors.accent) + '22', borderColor: (GRADE_COLORS[u.grade] || colors.accent) + '55' }]}>
+                      <View style={[s.gradeBadge, { backgroundColor: (GRADE_COLORS[u.grade] || colors.accent) + opacity.subtle, borderColor: (GRADE_COLORS[u.grade] || colors.accent) + opacity.muted }]}>
                         <Text style={[s.gradeBadgeText, { color: GRADE_COLORS[u.grade] || colors.accent }]}>
                           Kelas {u.grade}
                         </Text>
@@ -194,7 +195,7 @@ export default function UsersScreen() {
                   </View>
                 </View>
                 <TouchableOpacity
-                  style={[s.rolePill, { backgroundColor: meta.color + '22', borderColor: meta.color + '55' }]}
+                  style={[s.rolePill, { backgroundColor: meta.color + opacity.subtle, borderColor: meta.color + opacity.muted }]}
                   onPress={() => !isSelf && setRoleModal(u)}
                   disabled={isSelf}
                 >
@@ -238,7 +239,7 @@ export default function UsersScreen() {
                     key={r}
                     style={[
                       s.modalRoleBtn,
-                      isCurrentRole && { backgroundColor: m.color + '22', borderColor: m.color },
+                      isCurrentRole && { backgroundColor: m.color + opacity.subtle, borderColor: m.color },
                     ]}
                     onPress={() => roleModal && handleRoleChange(roleModal, r)}
                     disabled={isCurrentRole}
@@ -299,7 +300,7 @@ export default function UsersScreen() {
                     key={r}
                     style={[
                       s.rolePick,
-                      isSelected && { backgroundColor: m.color + '22', borderColor: m.color },
+                      isSelected && { backgroundColor: m.color + opacity.subtle, borderColor: m.color },
                     ]}
                     onPress={() => setNewRole(r)}
                   >
@@ -322,7 +323,7 @@ export default function UsersScreen() {
                         key={g}
                         style={[
                           s.gradePick,
-                          isSelected && { backgroundColor: gc + '22', borderColor: gc },
+                          isSelected && { backgroundColor: gc + opacity.subtle, borderColor: gc },
                         ]}
                         onPress={() => setNewGrade(g)}
                       >
@@ -361,9 +362,9 @@ const makeStyles = (c, isDark) =>
     title: { color: c.text, fontSize: fontSize.xxxl, fontWeight: fontWeight.black },
     subtitle: { color: c.textMuted, fontSize: fontSize.sm, marginTop: 2 },
     addBtn: {
-      backgroundColor: c.superadmin + '22', borderRadius: radius.full,
+      backgroundColor: c.superadmin + opacity.subtle, borderRadius: radius.full,
       paddingHorizontal: spacing.md, paddingVertical: spacing.xs + 2,
-      borderWidth: 1, borderColor: c.superadmin + '55',
+      borderWidth: 1, borderColor: c.superadmin + opacity.muted,
     },
     addBtnText: { color: c.superadmin, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     searchWrap: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
@@ -400,9 +401,9 @@ const makeStyles = (c, isDark) =>
     nameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     userName: { color: c.text, fontSize: fontSize.md, fontWeight: fontWeight.bold },
     selfBadge: {
-      backgroundColor: c.superadmin + '22', borderRadius: radius.full,
+      backgroundColor: c.superadmin + opacity.subtle, borderRadius: radius.full,
       paddingHorizontal: spacing.sm, paddingVertical: 2,
-      borderWidth: 1, borderColor: c.superadmin + '55',
+      borderWidth: 1, borderColor: c.superadmin + opacity.muted,
     },
     selfBadgeText: { color: c.superadmin, fontSize: 10, fontWeight: fontWeight.bold },
     userEmail: { color: c.textMuted, fontSize: fontSize.xs, marginTop: 1 },
@@ -429,7 +430,7 @@ const makeStyles = (c, isDark) =>
     deleteBtn: {
       paddingVertical: spacing.sm, paddingHorizontal: spacing.lg,
       borderRadius: radius.md, borderWidth: 1,
-      borderColor: c.danger + '55', backgroundColor: c.danger + '11',
+      borderColor: c.danger + opacity.muted, backgroundColor: c.danger + '11',
       alignItems: 'center',
     },
     deleteBtnText: { color: c.danger, fontSize: fontSize.xs, fontWeight: fontWeight.semibold },

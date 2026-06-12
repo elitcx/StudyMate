@@ -5,7 +5,8 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { useData } from '../../src/contexts/DataContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 const InfoRow = ({ s, label, value, isLast }) => (
   <View style={[s.infoRow, !isLast && s.infoRowBorder]}>
@@ -42,12 +43,12 @@ export default function SuperAdminProfile() {
     <SafeAreaView style={s.safe}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
         <View style={s.avatarSection}>
-          <View style={[s.avatarWrap, { backgroundColor: colors.superadmin + '22', borderColor: colors.superadmin + '55' }]}>
+          <View style={[s.avatarWrap, { backgroundColor: colors.superadmin + opacity.subtle, borderColor: colors.superadmin + opacity.muted }]}>
             <Text style={s.avatarEmoji}>{user?.avatar}</Text>
           </View>
           <Text style={s.name}>{user?.name}</Text>
           <Text style={s.email}>{user?.email}</Text>
-          <View style={[s.roleBadge, { backgroundColor: colors.superadmin + '22', borderColor: colors.superadmin + '44' }]}>
+          <View style={[s.roleBadge, { backgroundColor: colors.superadmin + opacity.subtle, borderColor: colors.superadmin + opacity.soft }]}>
             <Text style={[s.roleText, { color: colors.superadmin }]}>⚡ Superadmin</Text>
           </View>
         </View>
@@ -76,12 +77,12 @@ export default function SuperAdminProfile() {
           { label: '👥 Kelola Pengguna', onPress: () => router.push('/(superadmin)/users'), color: colors.superadmin },
           { label: '📚 Kelola Konten', onPress: () => router.push('/(superadmin)/content'), color: colors.accent },
         ].map((a) => (
-          <TouchableOpacity key={a.label} style={[s.navBtn, { borderColor: a.color + '55' }]} onPress={a.onPress}>
+          <TouchableOpacity key={a.label} style={[s.navBtn, { borderColor: a.color + opacity.muted }]} onPress={a.onPress}>
             <Text style={[s.navBtnText, { color: a.color }]}>{a.label}</Text>
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={[s.navBtn, { borderColor: colors.accent + '55' }]} onPress={toggleTheme}>
+        <TouchableOpacity style={[s.navBtn, { borderColor: colors.accent + opacity.muted }]} onPress={toggleTheme}>
           <Text style={[s.navBtnText, { color: colors.accent }]}>{isDark ? '☀️ Mode Terang' : '🌙 Mode Gelap'}</Text>
         </TouchableOpacity>
 
@@ -135,9 +136,9 @@ const makeStyles = (c, isDark) =>
     },
     navBtnText: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     logoutBtn: {
-      marginTop: spacing.md, backgroundColor: c.danger + '22', borderRadius: radius.md,
+      marginTop: spacing.md, backgroundColor: c.danger + opacity.subtle, borderRadius: radius.md,
       paddingVertical: spacing.md, alignItems: 'center',
-      borderWidth: 1, borderColor: c.danger + '55',
+      borderWidth: 1, borderColor: c.danger + opacity.muted,
     },
     logoutText: { color: c.danger, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
   });

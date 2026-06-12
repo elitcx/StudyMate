@@ -4,10 +4,10 @@ import {
   ActivityIndicator, StyleSheet, Modal, Pressable,
 } from 'react-native';
 import { useTheme } from '../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight, getShadow } from '../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../utils/theme';
 
 // ── Button ────────────────────────────────────────────────────────────────────
-export const Button = ({ onPress, label, loading = false, variant = 'primary', style, disabled, icon }) => {
+export const Button = ({ onPress, label, loading = false, variant = 'primary', size = 'md', style, disabled, icon }) => {
   const { colors, isDark } = useTheme();
 
   const bg =
@@ -24,9 +24,21 @@ export const Button = ({ onPress, label, loading = false, variant = 'primary', s
     : colors.text;
 
   const borderStyle =
-    variant === 'ghost'     ? { borderWidth: 1, borderColor: colors.accent }
+    variant === 'ghost'       ? { borderWidth: 1, borderColor: colors.accent }
     : variant === 'secondary' ? { borderWidth: 1, borderColor: colors.border }
     : {};
+
+  const glowShadow = variant === 'primary' && isDark ? {
+    shadowColor: bg,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
+  } : isDark ? {} : getShadow(false).sm;
+
+  const height = size === 'sm' ? 36 : size === 'lg' ? 56 : 48;
+  const paddingH = size === 'sm' ? spacing.md : spacing.lg;
+  const textSize = size === 'sm' ? fontSize.sm : fontSize.md;
 
   return (
     <TouchableOpacity
@@ -34,9 +46,9 @@ export const Button = ({ onPress, label, loading = false, variant = 'primary', s
       disabled={disabled || loading}
       style={[
         btnStyles.btn,
-        { backgroundColor: bg, opacity: disabled ? 0.45 : 1 },
+        { backgroundColor: bg, opacity: disabled ? 0.45 : 1, height, paddingHorizontal: paddingH },
         borderStyle,
-        isDark ? {} : getShadow(false).sm,
+        glowShadow,
         style,
       ]}
       activeOpacity={0.75}
@@ -45,8 +57,12 @@ export const Button = ({ onPress, label, loading = false, variant = 'primary', s
         <ActivityIndicator color={textColor} size="small" />
       ) : (
         <View style={btnStyles.inner}>
-          {icon && <Text style={btnStyles.icon}>{icon}</Text>}
-          <Text style={[btnStyles.label, { color: textColor }]}>{label}</Text>
+          {icon && (
+            typeof icon === 'string'
+              ? <Text style={btnStyles.icon}>{icon}</Text>
+              : <View>{icon}</View>
+          )}
+          <Text style={[btnStyles.label, { color: textColor, fontSize: textSize }]}>{label}</Text>
         </View>
       )}
     </TouchableOpacity>
@@ -57,18 +73,16 @@ const btnStyles = StyleSheet.create({
   btn: {
     borderRadius: radius.md,
     paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 50,
   },
   inner: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   icon: { fontSize: fontSize.md },
-  label: { fontSize: fontSize.md, fontWeight: fontWeight.semibold, letterSpacing: 0.2 },
+  label: { fontWeight: fontWeight.semibold, letterSpacing: 0.3 },
 });
 
 // ── Input ─────────────────────────────────────────────────────────────────────
-export const Input = ({ label, error, style, containerStyle, ...props }) => {
+export const Input = ({ label, error, style, containerStyle, leftIcon, ...props }) => {
   const { colors } = useTheme();
   return (
     <View style={[{ marginBottom: spacing.md }, containerStyle]}>
@@ -77,40 +91,50 @@ export const Input = ({ label, error, style, containerStyle, ...props }) => {
           {label}
         </Text>
       )}
-      <TextInput
-        style={[
-          {
-            backgroundColor: colors.bgInput,
-            borderWidth: 1,
-            borderColor: error ? colors.danger : colors.border,
-            borderRadius: radius.md,
-            paddingHorizontal: spacing.md,
-            paddingVertical: 14,
-            color: colors.text,
-            fontSize: fontSize.md,
-          },
-          style,
-        ]}
-        placeholderTextColor={colors.textFaint}
-        selectionColor={colors.accent}
-        {...props}
-      />
+      <View style={{ position: 'relative' }}>
+        {leftIcon && (
+          <View style={{ position: 'absolute', left: spacing.md, top: 0, bottom: 0, justifyContent: 'center', zIndex: 1 }}>
+            {leftIcon}
+          </View>
+        )}
+        <TextInput
+          style={[
+            {
+              backgroundColor: colors.bgInput,
+              borderWidth: 1,
+              borderColor: error ? colors.danger : colors.border,
+              borderRadius: radius.md,
+              paddingHorizontal: leftIcon ? spacing.xl + spacing.md : spacing.md,
+              paddingVertical: 14,
+              color: colors.text,
+              fontSize: fontSize.md,
+              lineHeight: fontSize.md * 1.4,
+              includeFontPadding: false,
+            },
+            style,
+          ]}
+          placeholderTextColor={colors.textFaint}
+          selectionColor={colors.accent}
+          {...props}
+        />
+      </View>
       {error && <Text style={{ color: colors.danger, fontSize: fontSize.xs, marginTop: spacing.xs }}>{error}</Text>}
     </View>
   );
 };
 
 // ── Card ──────────────────────────────────────────────────────────────────────
-export const Card = ({ children, style, onPress }) => {
+export const Card = ({ children, style, onPress, accent, accentColor }) => {
   const { colors, isDark } = useTheme();
   const cardStyle = [
     {
       backgroundColor: colors.bgCard,
       borderRadius: radius.lg,
       padding: spacing.md,
-      borderWidth: isDark ? 1 : 0,
-      borderColor: colors.border,
+      borderWidth: 1,
+      borderColor: isDark ? colors.border : colors.border + '80',
       ...getShadow(isDark).sm,
+      ...(accent && { borderTopWidth: 3, borderTopColor: accentColor || colors.accent }),
     },
     style,
   ];
@@ -121,20 +145,26 @@ export const Card = ({ children, style, onPress }) => {
 };
 
 // ── Badge ─────────────────────────────────────────────────────────────────────
-export const Badge = ({ label, color, size = 'md' }) => {
+export const Badge = ({ label, color, size = 'md', variant }) => {
   const { colors: c } = useTheme();
-  const col = color || c.accent;
+  const col =
+    variant === 'success' ? c.success
+    : variant === 'danger'  ? c.danger
+    : variant === 'warning' ? c.warning
+    : variant === 'info'    ? c.accent
+    : color || c.accent;
+
   return (
     <View style={{
       borderRadius: radius.full,
-      backgroundColor: col + '18',
+      backgroundColor: col + opacity.subtle,
       borderWidth: 1,
-      borderColor: col + '44',
+      borderColor: col + opacity.muted,
       paddingHorizontal: size === 'sm' ? spacing.xs + 2 : spacing.sm,
       paddingVertical: size === 'sm' ? 2 : 4,
       alignSelf: 'flex-start',
     }}>
-      <Text style={{ color: col, fontSize: size === 'sm' ? 10 : fontSize.xs, fontWeight: fontWeight.semibold }}>
+      <Text style={{ color: col, fontSize: size === 'sm' ? fontSize.xs : fontSize.sm, fontWeight: fontWeight.semibold, letterSpacing: 0.3 }}>
         {label}
       </Text>
     </View>
@@ -146,7 +176,7 @@ export const SectionHeader = ({ title, action, onAction }) => {
   const { colors } = useTheme();
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md }}>
-      <Text style={{ color: colors.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold }}>{title}</Text>
+      <Text style={{ color: colors.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold, letterSpacing: -0.3 }}>{title}</Text>
       {action && (
         <TouchableOpacity onPress={onAction}>
           <Text style={{ color: colors.accent, fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>{action}</Text>
@@ -159,15 +189,19 @@ export const SectionHeader = ({ title, action, onAction }) => {
 // ── Empty state ───────────────────────────────────────────────────────────────
 export const EmptyState = ({ icon = '📭', title, subtitle, action, onAction }) => {
   const { colors } = useTheme();
+  const iconEl = typeof icon === 'string'
+    ? <Text style={{ fontSize: 44, marginBottom: spacing.sm }}>{icon}</Text>
+    : <View style={{ marginBottom: spacing.md }}>{icon}</View>;
+
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.xxl, gap: spacing.sm }}>
-      <Text style={{ fontSize: 44, marginBottom: spacing.sm }}>{icon}</Text>
-      <Text style={{ color: colors.textMuted, fontSize: fontSize.lg, fontWeight: fontWeight.semibold, textAlign: 'center' }}>{title}</Text>
-      {subtitle && <Text style={{ color: colors.textFaint, fontSize: fontSize.sm, textAlign: 'center', paddingHorizontal: spacing.xl }}>{subtitle}</Text>}
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.xxl, paddingHorizontal: spacing.xl, gap: spacing.sm }}>
+      {iconEl}
+      <Text style={{ color: colors.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold, textAlign: 'center', lineHeight: 26 }}>{title}</Text>
+      {subtitle && <Text style={{ color: colors.textMuted, fontSize: fontSize.md, textAlign: 'center', lineHeight: 22 }}>{subtitle}</Text>}
       {action && (
         <TouchableOpacity
           onPress={onAction}
-          style={{ marginTop: spacing.md, backgroundColor: colors.accent + '18', borderRadius: radius.full, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderWidth: 1, borderColor: colors.accent + '44' }}
+          style={{ marginTop: spacing.md, backgroundColor: colors.accent + opacity.subtle, borderRadius: radius.full, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderWidth: 1, borderColor: colors.accent + opacity.muted }}
         >
           <Text style={{ color: colors.accent, fontSize: fontSize.sm, fontWeight: fontWeight.semibold }}>{action}</Text>
         </TouchableOpacity>
@@ -202,19 +236,22 @@ export const Divider = ({ style, label }) => {
 };
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
-export const StatCard = ({ label, value, icon, color, accent = false }) => {
+export const StatCard = ({ label, value, icon, color, accent = false, size = 'md' }) => {
   const { colors, isDark } = useTheme();
   const col = color || colors.accent;
+  const valueSize = size === 'sm' ? fontSize.lg : fontSize.xl;
+  const labelSize = size === 'sm' ? fontSize.xs : fontSize.xs;
+
   return (
-    <View style={[
-      { backgroundColor: colors.bgCard, borderRadius: radius.md, padding: spacing.md, alignItems: 'center', flex: 1 },
-      isDark ? { borderWidth: 1, borderColor: colors.border } : getShadow(false).sm,
-      accent && { borderTopWidth: 3, borderTopColor: col },
-    ]}>
-      {icon && <Text style={{ fontSize: 20, marginBottom: 4 }}>{icon}</Text>}
-      <Text style={{ color: col, fontSize: fontSize.xl, fontWeight: fontWeight.black }}>{value}</Text>
-      <Text style={{ color: colors.textMuted, fontSize: fontSize.xs, marginTop: 2, textAlign: 'center' }}>{label}</Text>
-    </View>
+    <Card accent={accent} accentColor={col} style={{ alignItems: 'center', flex: 1 }}>
+      {icon && (
+        typeof icon === 'string'
+          ? <Text style={{ fontSize: 20, marginBottom: 4 }}>{icon}</Text>
+          : <View style={{ marginBottom: 4 }}>{icon}</View>
+      )}
+      <Text style={{ color: col, fontSize: valueSize, fontWeight: fontWeight.black }}>{value}</Text>
+      <Text style={{ color: colors.textMuted, fontSize: labelSize, marginTop: 2, textAlign: 'center', lineHeight: 15 }}>{label}</Text>
+    </Card>
   );
 };
 

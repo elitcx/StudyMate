@@ -5,7 +5,8 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { useData } from '../../src/contexts/DataContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 const StatBox = ({ s, label, value, icon, color }) => (
   <View style={[s.statBox, { borderTopColor: color, borderTopWidth: 3 }]}>
@@ -41,12 +42,12 @@ export default function AdminProfile() {
     <SafeAreaView style={s.safe}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
         <View style={s.avatarSection}>
-          <View style={[s.avatarWrap, { backgroundColor: colors.admin + '22', borderColor: colors.admin + '55' }]}>
+          <View style={[s.avatarWrap, { backgroundColor: colors.admin + opacity.subtle, borderColor: colors.admin + opacity.muted }]}>
             <Text style={s.avatarEmoji}>{user?.avatar}</Text>
           </View>
           <Text style={s.name}>{user?.name}</Text>
           <Text style={s.email}>{user?.email}</Text>
-          <View style={[s.roleBadge, { backgroundColor: colors.admin + '22', borderColor: colors.admin + '44' }]}>
+          <View style={[s.roleBadge, { backgroundColor: colors.admin + opacity.subtle, borderColor: colors.admin + opacity.soft }]}>
             <Text style={[s.roleText, { color: colors.admin }]}>👩‍🏫 Admin</Text>
           </View>
         </View>
@@ -71,12 +72,12 @@ export default function AdminProfile() {
           { label: '➕ Buat Kelas Baru', onPress: () => router.push('/(admin)/create-class'), color: colors.admin },
           { label: '✏️ Buat Kuis Baru', onPress: () => router.push('/(admin)/quizzes'), color: colors.accent },
         ].map((a) => (
-          <TouchableOpacity key={a.label} style={[s.actionBtn, { borderColor: a.color + '55' }]} onPress={a.onPress}>
+          <TouchableOpacity key={a.label} style={[s.actionBtn, { borderColor: a.color + opacity.muted }]} onPress={a.onPress}>
             <Text style={[s.actionBtnText, { color: a.color }]}>{a.label}</Text>
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={[s.actionBtn, { borderColor: colors.accent + '55' }]} onPress={toggleTheme}>
+        <TouchableOpacity style={[s.actionBtn, { borderColor: colors.accent + opacity.muted }]} onPress={toggleTheme}>
           <Text style={[s.actionBtnText, { color: colors.accent }]}>{isDark ? '☀️ Mode Terang' : '🌙 Mode Gelap'}</Text>
         </TouchableOpacity>
 
@@ -130,9 +131,9 @@ const makeStyles = (c, isDark) =>
     },
     actionBtnText: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
     logoutBtn: {
-      marginTop: spacing.md, backgroundColor: c.danger + '22', borderRadius: radius.md,
+      marginTop: spacing.md, backgroundColor: c.danger + opacity.subtle, borderRadius: radius.md,
       paddingVertical: spacing.md, alignItems: 'center',
-      borderWidth: 1, borderColor: c.danger + '55',
+      borderWidth: 1, borderColor: c.danger + opacity.muted,
     },
     logoutText: { color: c.danger, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
   });

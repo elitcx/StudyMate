@@ -8,7 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useData } from '../../../src/contexts/DataContext';
 import { useAuth } from '../../../src/contexts/AuthContext';
 import { useTheme } from '../../../src/contexts/ThemeContext';
-import { spacing, fontSize, fontWeight, radius } from '../../../utils/theme';
+import { spacing, fontSize, fontWeight, radius, opacity } from '../../../utils/theme';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 function fmtDate(s) {
@@ -122,11 +122,11 @@ export default function SubjectDetailScreen() {
                 onPress={() => router.push({ pathname: '/(student)/material-detail', params: { matId: mat.id } })}
                 activeOpacity={0.8}
               >
-                <View style={[s.matIcon, { backgroundColor: typeColor(mat.type) + '22' }]}>
+                <View style={[s.matIcon, { backgroundColor: typeColor(mat.type) + opacity.subtle }]}>
                   <Text style={{ fontSize: 22 }}>{typeIcon(mat.type)}</Text>
                 </View>
                 <View style={s.matInfo}>
-                  <View style={[s.typePill, { backgroundColor: typeColor(mat.type) + '22', borderColor: typeColor(mat.type) + '55' }]}>
+                  <View style={[s.typePill, { backgroundColor: typeColor(mat.type) + opacity.subtle, borderColor: typeColor(mat.type) + opacity.muted }]}>
                     <Text style={[s.typePillTxt, { color: typeColor(mat.type) }]}>{mat.type.toUpperCase()}</Text>
                   </View>
                   <Text style={s.matTitle}>{mat.title}</Text>
@@ -173,7 +173,7 @@ export default function SubjectDetailScreen() {
                   <View style={s.testTop}>
                     <Text style={s.testTitle}>{test.title}</Text>
                     {urgencyLabel ? (
-                      <View style={[s.urgencyBadge, { backgroundColor: urgencyColor + '22', borderColor: urgencyColor + '55' }]}>
+                      <View style={[s.urgencyBadge, { backgroundColor: urgencyColor + opacity.subtle, borderColor: urgencyColor + opacity.muted }]}>
                         <Text style={[s.urgencyTxt, { color: urgencyColor }]}>{urgencyLabel}</Text>
                       </View>
                     ) : null}
@@ -215,11 +215,11 @@ export default function SubjectDetailScreen() {
             ListEmptyComponent={<EmptyTab s={s} icon="🔗" text="Belum ada sumber belajar ditambahkan" />}
             renderItem={({ item: mat }) => (
               <TouchableOpacity
-                style={[s.sourceCard, { borderColor: colors.admin + '44' }]}
+                style={[s.sourceCard, { borderColor: colors.admin + opacity.soft }]}
                 onPress={() => mat.fileUrl && Linking.openURL(mat.fileUrl)}
                 activeOpacity={0.8}
               >
-                <View style={[s.sourcThumb, { backgroundColor: colors.admin + '22' }]}>
+                <View style={[s.sourcThumb, { backgroundColor: colors.admin + opacity.subtle }]}>
                   <Text style={s.sourcPlay}>▶</Text>
                   <Text style={[s.sourcDur, { color: colors.admin }]}>{mat.duration || '—'}</Text>
                 </View>
@@ -261,7 +261,7 @@ export default function SubjectDetailScreen() {
                       {quiz.description ? <Text style={s.quizDesc} numberOfLines={1}>{quiz.description}</Text> : null}
                     </View>
                     {isDone ? (
-                      <View style={[s.scoreBadge, { backgroundColor: pctColor + '22', borderColor: pctColor + '55' }]}>
+                      <View style={[s.scoreBadge, { backgroundColor: pctColor + opacity.subtle, borderColor: pctColor + opacity.muted }]}>
                         <Text style={[s.scoreVal, { color: pctColor }]}>{score.percentage}%</Text>
                       </View>
                     ) : (
@@ -387,7 +387,7 @@ const makeStyles = (c, isDark) =>
     quizDesc: { color: c.textMuted, fontSize: fontSize.xs, marginTop: 2 },
     scoreBadge: { borderRadius: radius.full, borderWidth: 1, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
     scoreVal: { fontSize: fontSize.sm, fontWeight: fontWeight.black },
-    startBadge: { backgroundColor: c.accent + '22', borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderWidth: 1, borderColor: c.accent + '55' },
+    startBadge: { backgroundColor: c.accent + opacity.subtle, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderWidth: 1, borderColor: c.accent + opacity.muted },
     startTxt: { color: c.accent, fontSize: fontSize.xs, fontWeight: fontWeight.bold },
     quizMeta: { flexDirection: 'row', gap: spacing.md },
     quizMetaItem: { color: c.textFaint, fontSize: fontSize.xs },

@@ -8,7 +8,8 @@ import { useRouter } from 'expo-router';
 import { useData } from '../../src/contexts/DataContext';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 const ICONS = ['📚', '🔢', '⚛️', '🧪', '🌿', '📜', '🌍', '💻', '🎨', '🎵', '⚽', '🏛️'];
 const COLORS = ['#38bdf8', '#a78bfa', '#4ade80', '#fb923c', '#fbbf24', '#f87171', '#34d399', '#60a5fa'];
@@ -168,7 +169,7 @@ export default function CreateClassScreen() {
             </View>
 
             <View style={[s.preview, { borderTopColor: selectedColor, borderTopWidth: 3 }]}>
-              <View style={[s.previewIcon, { backgroundColor: selectedColor + '22' }]}>
+              <View style={[s.previewIcon, { backgroundColor: selectedColor + opacity.subtle }]}>
                 <Text style={{ fontSize: 28 }}>{selectedIcon}</Text>
               </View>
               <View style={{ flex: 1 }}>
@@ -300,7 +301,7 @@ const makeStyles = (c, isDark) =>
       backgroundColor: c.bg, borderWidth: 1, borderColor: c.border,
       alignItems: 'center', justifyContent: 'center',
     },
-    iconOptionSelected: { borderColor: c.admin, backgroundColor: c.admin + '22' },
+    iconOptionSelected: { borderColor: c.admin, backgroundColor: c.admin + opacity.subtle },
     colorsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
     colorOption: {
       width: 36, height: 36, borderRadius: 18,
@@ -314,7 +315,7 @@ const makeStyles = (c, isDark) =>
       borderRadius: radius.md, borderWidth: 1, borderColor: c.border,
       backgroundColor: c.bg,
     },
-    gradeBtnActive: { backgroundColor: c.admin + '22', borderColor: c.admin },
+    gradeBtnActive: { backgroundColor: c.admin + opacity.subtle, borderColor: c.admin },
     gradeBtnLabel: { color: c.textMuted, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     gradeBtnLabelActive: { color: c.admin },
     gradeBtnSub: { color: c.textFaint, fontSize: 10, marginTop: 2 },
@@ -340,13 +341,13 @@ const makeStyles = (c, isDark) =>
       borderWidth: 1, borderColor: c.border,
       paddingVertical: spacing.sm,
     },
-    typeBtnActive: { backgroundColor: c.admin + '22', borderColor: c.admin },
+    typeBtnActive: { backgroundColor: c.admin + opacity.subtle, borderColor: c.admin },
     typeBtnText: { color: c.textMuted, fontSize: fontSize.xs, fontWeight: fontWeight.bold },
     typeBtnTextActive: { color: c.admin },
     addMatBtn: {
-      marginTop: spacing.md, backgroundColor: c.admin + '22',
+      marginTop: spacing.md, backgroundColor: c.admin + opacity.subtle,
       borderRadius: radius.md, paddingVertical: spacing.md,
-      alignItems: 'center', borderWidth: 1, borderColor: c.admin + '55',
+      alignItems: 'center', borderWidth: 1, borderColor: c.admin + opacity.muted,
     },
     addMatBtnText: { color: c.admin, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
     materialsPreview: {
@@ -357,7 +358,7 @@ const makeStyles = (c, isDark) =>
     materialsPreviewTitle: { color: c.textMuted, fontSize: fontSize.xs, fontWeight: fontWeight.bold, marginBottom: spacing.sm },
     matRow: {
       flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
-      paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: c.border + '55',
+      paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: c.border + opacity.muted,
     },
     matInfo: { flex: 1 },
     matTitle: { color: c.text, fontSize: fontSize.sm, fontWeight: fontWeight.medium },

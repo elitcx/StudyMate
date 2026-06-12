@@ -8,7 +8,7 @@ export const ThemeProvider = ({ children }) => {
   const systemScheme = useColorScheme();
   const [override, setOverride] = useState(null); // null = follow system
 
-  const isDark = override !== null ? override === 'dark' : systemScheme !== 'light';
+  const isDark = override !== null ? override === 'dark' : systemScheme === 'dark';
   const colors = isDark ? darkColors : lightColors;
 
   const toggleTheme = () => setOverride(isDark ? 'light' : 'dark');

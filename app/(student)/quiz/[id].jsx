@@ -8,7 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../../src/contexts/AuthContext';
 import { useData } from '../../../src/contexts/DataContext';
 import { useTheme } from '../../../src/contexts/ThemeContext';
-import { spacing, fontSize, fontWeight, radius } from '../../../utils/theme';
+import { spacing, fontSize, fontWeight, radius, opacity } from '../../../utils/theme';
 
 const InfoBox = ({ s, icon, label, value }) => (
   <View style={s.infoBox}>
@@ -424,7 +424,7 @@ const makeStyles = (c, isDark) =>
     navBtnNext: {
       flex: 1, paddingVertical: spacing.md,
       borderRadius: radius.md, backgroundColor: c.bgCard,
-      borderWidth: 1, borderColor: c.accent + '55', alignItems: 'center',
+      borderWidth: 1, borderColor: c.accent + opacity.muted, alignItems: 'center',
     },
     navBtnNextText: { color: c.accent, fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
     submitBtn: {
@@ -463,8 +463,8 @@ const makeStyles = (c, isDark) =>
       borderWidth: 1, borderColor: 'transparent',
     },
     optNeutral: { backgroundColor: c.bg },
-    optCorrect: { backgroundColor: c.success + '22', borderColor: c.success + '55' },
-    optWrong: { backgroundColor: c.danger + '22', borderColor: c.danger + '55' },
+    optCorrect: { backgroundColor: c.success + opacity.subtle, borderColor: c.success + opacity.muted },
+    optWrong: { backgroundColor: c.danger + opacity.subtle, borderColor: c.danger + opacity.muted },
     reviewOptText: { fontSize: fontSize.sm, flex: 1 },
     optTextNeutral: { color: c.textMuted },
     optTextCorrect: { color: c.success, fontWeight: fontWeight.semibold },
@@ -472,7 +472,7 @@ const makeStyles = (c, isDark) =>
     resultActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
     retryBtn: {
       flex: 1, paddingVertical: spacing.md, borderRadius: radius.md,
-      backgroundColor: c.accent + '22', borderWidth: 1, borderColor: c.accent + '55',
+      backgroundColor: c.accent + opacity.subtle, borderWidth: 1, borderColor: c.accent + opacity.muted,
       alignItems: 'center',
     },
     retryBtnText: { color: c.accent, fontSize: fontSize.sm, fontWeight: fontWeight.bold },

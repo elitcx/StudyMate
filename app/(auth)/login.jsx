@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  KeyboardAvoidingView, Platform, ScrollView, Alert,
+  KeyboardAvoidingView, Platform, ScrollView, Alert, Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/contexts/AuthContext';
@@ -54,9 +54,7 @@ export default function LoginScreen() {
         </TouchableOpacity>
 
         <View style={s.brand}>
-          <View style={s.logoCircle}>
-            <Text style={s.logoEmoji}>📚</Text>
-          </View>
+          <Image source={require('../../assets/icon.png')} style={s.logoImage} />
           <Text style={s.appName}>StudyMate</Text>
         </View>
 
@@ -78,12 +76,6 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={s.demoSection}>
-          <Text style={s.demoTitle}>Demo: buat akun baru di halaman Daftar</Text>
-          <Text style={s.demoSub}>
-            Setelah daftar, hubungi superadmin untuk mengubah role ke admin.
-          </Text>
-        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -111,16 +103,7 @@ const makeStyles = (c, isDark) => {
       alignItems: 'center',
       marginBottom: spacing.xl,
     },
-    logoCircle: {
-      width: 64,
-      height: 64,
-      borderRadius: 32,
-      backgroundColor: c.accent + '18',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: spacing.sm,
-    },
-    logoEmoji: { fontSize: 28 },
+    logoImage: { width: 64, height: 64, borderRadius: 14, marginBottom: spacing.sm },
     appName: {
       fontSize: fontSize.xxl,
       fontWeight: fontWeight.black,
@@ -157,21 +140,6 @@ const makeStyles = (c, isDark) => {
     linkAccent: {
       color: c.accent,
       fontWeight: fontWeight.semibold,
-    },
-    demoSection: {
-      marginTop: spacing.xl,
-      alignItems: 'center',
-      gap: spacing.xs,
-    },
-    demoTitle: {
-      color: c.textFaint,
-      fontSize: fontSize.xs,
-      textAlign: 'center',
-    },
-    demoSub: {
-      color: c.textFaint,
-      fontSize: fontSize.xs,
-      textAlign: 'center',
     },
   });
 };

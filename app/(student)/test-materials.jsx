@@ -7,7 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useData } from '../../src/contexts/DataContext';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight } from '../../utils/theme';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../utils/theme';
+
 
 const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 function formatDate(dateStr) {
@@ -22,11 +23,11 @@ function MaterialBody({ mat, s, colors }) {
   if (mat.type === 'video') {
     return (
       <TouchableOpacity
-        style={[s.videoBlock, { borderColor: typeColor + '44' }]}
+        style={[s.videoBlock, { borderColor: typeColor + opacity.soft }]}
         onPress={() => mat.fileUrl && Linking.openURL(mat.fileUrl)}
         activeOpacity={0.8}
       >
-        <View style={[s.videoThumb, { backgroundColor: typeColor + '22' }]}>
+        <View style={[s.videoThumb, { backgroundColor: typeColor + opacity.subtle }]}>
           <Text style={s.videoPlay}>▶</Text>
           <Text style={[s.videoDuration, { color: typeColor }]}>{mat.duration || '—'}</Text>
         </View>
@@ -40,7 +41,7 @@ function MaterialBody({ mat, s, colors }) {
   if (mat.type === 'pdf') {
     return (
       <View style={s.pdfBlock}>
-        <View style={[s.pdfHeader, { backgroundColor: typeColor + '18', borderColor: typeColor + '44' }]}>
+        <View style={[s.pdfHeader, { backgroundColor: typeColor + opacity.tint, borderColor: typeColor + opacity.soft }]}>
           <Text style={s.pdfHeaderIcon}>📄</Text>
           <View style={s.pdfHeaderInfo}>
             <Text style={[s.pdfHeaderTitle, { color: typeColor }]}>{mat.title}</Text>
@@ -121,7 +122,7 @@ export default function TestMaterialsScreen() {
 
             <View style={[s.testCard, { borderLeftColor: subject.color, borderLeftWidth: 4 }]}>
               <View style={s.testCardTop}>
-                <View style={[s.subjectBadge, { backgroundColor: subject.color + '22' }]}>
+                <View style={[s.subjectBadge, { backgroundColor: subject.color + opacity.subtle }]}>
                   <Text style={[s.subjectBadgeText, { color: subject.color }]}>
                     {subject.icon} {subject.title}
                   </Text>
@@ -158,15 +159,15 @@ export default function TestMaterialsScreen() {
                 onPress={() => setExpandedId(isExpanded ? null : mat.id)}
                 activeOpacity={0.8}
               >
-                <View style={[s.matNumBadge, { backgroundColor: tc + '22' }]}>
+                <View style={[s.matNumBadge, { backgroundColor: tc + opacity.subtle }]}>
                   <Text style={[s.matNum, { color: tc }]}>{index + 1}</Text>
                 </View>
-                <View style={[s.matIconBox, { backgroundColor: tc + '22' }]}>
+                <View style={[s.matIconBox, { backgroundColor: tc + opacity.subtle }]}>
                   <Text style={{ fontSize: 18 }}>{typeIcon(mat.type)}</Text>
                 </View>
                 <View style={s.matHeaderInfo}>
                   <View style={s.matHeaderTop}>
-                    <View style={[s.typePill, { backgroundColor: tc + '22', borderColor: tc + '55' }]}>
+                    <View style={[s.typePill, { backgroundColor: tc + opacity.subtle, borderColor: tc + opacity.muted }]}>
                       <Text style={[s.typePillText, { color: tc }]}>{typeLabel(mat.type)}</Text>
                     </View>
                   </View>
@@ -176,7 +177,7 @@ export default function TestMaterialsScreen() {
                     {mat.duration ? `  ·  ⏱ ${mat.duration}` : ''}
                   </Text>
                 </View>
-                <View style={[s.expandBtn, isExpanded && { backgroundColor: tc + '22', borderColor: tc + '55' }]}>
+                <View style={[s.expandBtn, isExpanded && { backgroundColor: tc + opacity.subtle, borderColor: tc + opacity.muted }]}>
                   <Text style={[s.expandBtnText, isExpanded && { color: tc }]}>
                     {isExpanded ? '▲' : '▼'}
                   </Text>
@@ -195,7 +196,7 @@ export default function TestMaterialsScreen() {
         ListFooterComponent={
           <>
             {linkedMats.length > 0 && (
-              <View style={[s.tipCard, { borderColor: subject.color + '44' }]}>
+              <View style={[s.tipCard, { borderColor: subject.color + opacity.soft }]}>
                 <Text style={s.tipIcon}>💡</Text>
                 <Text style={s.tipText}>
                   Ketuk setiap materi untuk membuka isinya. Pelajari semua materi di atas sebelum hari ujian.
@@ -358,7 +359,7 @@ const makeStyles = (c, isDark) =>
       borderWidth: 1, borderColor: 'transparent',
       marginBottom: spacing.xs, backgroundColor: c.bg,
     },
-    prepQOptCorrect: { backgroundColor: c.success + '22', borderColor: c.success + '55' },
+    prepQOptCorrect: { backgroundColor: c.success + opacity.subtle, borderColor: c.success + opacity.muted },
     prepQOptText: { color: c.textMuted, fontSize: fontSize.sm, flex: 1 },
     prepQOptTextCorrect: { color: c.success, fontWeight: fontWeight.semibold },
     prepQOptCheck: { color: c.success, fontSize: 14 },

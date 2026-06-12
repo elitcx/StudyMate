@@ -2,10 +2,10 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { useData } from '../../src/contexts/DataContext';
-import { useTheme } from '../../src/contexts/ThemeContext';
-import { spacing, radius, fontSize, fontWeight, getShadow } from '../../utils/theme';
+import { useAuth } from '../../../src/contexts/AuthContext';
+import { useData } from '../../../src/contexts/DataContext';
+import { useTheme } from '../../../src/contexts/ThemeContext';
+import { spacing, radius, fontSize, fontWeight, getShadow, opacity } from '../../../utils/theme';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 function formatDate(s) {
@@ -90,7 +90,6 @@ export default function HomeScreen() {
           const subMats    = materials.filter((m) => m.subjectId === sub.id);
           const completed  = subQuizzes.filter((q) => myScores.some((sc) => sc.quizId === q.id)).length;
 
-          // Next upcoming exam (type='exam' only — practice quizzes don't show here)
           const upcoming = subQuizzes
             .filter((q) => q.date && (q.type ?? 'practice') === 'exam')
             .sort((a, b) => new Date(a.date) - new Date(b.date))
@@ -99,20 +98,20 @@ export default function HomeScreen() {
           const days = upcoming ? daysUntil(upcoming.date) : null;
           let urgencyColor = colors.success;
           if (days !== null) {
-            if (days === 0)    urgencyColor = colors.danger;
+            if (days === 0)     urgencyColor = colors.danger;
             else if (days <= 3) urgencyColor = colors.danger;
             else if (days <= 7) urgencyColor = colors.warning;
           }
 
           return (
             <TouchableOpacity
-              style={[s.subjectCard, { borderLeftColor: sub.color, borderLeftWidth: 4 }]}
+              style={[s.subjectCard, { borderLeftColor: sub.color, borderLeftWidth: 3 }]}
               onPress={() => router.push(`/(student)/subject/${sub.id}`)}
               activeOpacity={0.8}
             >
               {/* Top */}
               <View style={s.cardTop}>
-                <View style={[s.iconBox, { backgroundColor: sub.color + '18' }]}>
+                <View style={[s.iconBox, { backgroundColor: sub.color + opacity.tint }]}>
                   <Text style={s.iconText}>{sub.icon}</Text>
                 </View>
                 <View style={s.cardInfo}>
@@ -120,24 +119,6 @@ export default function HomeScreen() {
                   <Text style={s.cardDesc} numberOfLines={1}>{sub.description}</Text>
                 </View>
                 <Text style={s.chevron}>›</Text>
-              </View>
-
-              {/* Stats row */}
-              <View style={s.statsRow}>
-                <View style={s.stat}>
-                  <Text style={s.statVal}>{subMats.length}</Text>
-                  <Text style={s.statLbl}>Materi</Text>
-                </View>
-                <View style={s.statDiv} />
-                <View style={s.stat}>
-                  <Text style={s.statVal}>{subQuizzes.length}</Text>
-                  <Text style={s.statLbl}>Ujian</Text>
-                </View>
-                <View style={s.statDiv} />
-                <View style={s.stat}>
-                  <Text style={s.statVal}>{completed}</Text>
-                  <Text style={s.statLbl}>Selesai</Text>
-                </View>
               </View>
 
               {/* Progress bar */}
@@ -157,7 +138,7 @@ export default function HomeScreen() {
 
               {/* Upcoming test badge */}
               {upcoming && (
-                <View style={[s.upcomingBadge, { backgroundColor: urgencyColor + '18', borderColor: urgencyColor + '55' }]}>
+                <View style={[s.upcomingBadge, { backgroundColor: urgencyColor + opacity.subtle, borderColor: urgencyColor + opacity.muted }]}>
                   <Text style={[s.upcomingText, { color: urgencyColor }]}>
                     📅 Ujian: {upcoming.title} · {days === 0 ? 'Hari ini' : `${days} hari lagi`} ({formatDate(upcoming.date)})
                   </Text>
@@ -180,11 +161,13 @@ const makeStyles = (c, isDark) => {
       flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
       paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.md,
     },
-    greeting: { color: c.textMuted, fontSize: fontSize.sm },
-    name: { color: c.text, fontSize: fontSize.xxl, fontWeight: fontWeight.black },
+    greeting: { color: c.textMuted, fontSize: fontSize.sm, fontWeight: fontWeight.medium, letterSpacing: 0.2 },
+    name: { color: c.text, fontSize: fontSize.xxl, fontWeight: fontWeight.black, letterSpacing: -0.5, lineHeight: 32 },
     avatarBtn: {
       width: 44, height: 44, borderRadius: 22,
-      backgroundColor: c.accent + '18',
+      backgroundColor: c.accent + opacity.tint,
+      borderWidth: 1.5,
+      borderColor: c.accent + opacity.soft,
       alignItems: 'center', justifyContent: 'center',
     },
     avatarText: { fontSize: 22 },
@@ -193,7 +176,7 @@ const makeStyles = (c, isDark) => {
       flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
       paddingHorizontal: spacing.lg, paddingBottom: spacing.sm,
     },
-    sectionTitle: { color: c.text, fontSize: fontSize.md, fontWeight: fontWeight.bold },
+    sectionTitle: { color: c.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold, letterSpacing: -0.3 },
     seeAll: { color: c.accent, fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
 
     list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
@@ -201,63 +184,56 @@ const makeStyles = (c, isDark) => {
     subjectCard: {
       backgroundColor: c.bgCard,
       borderRadius: radius.lg,
-      ...(isDark
-        ? { borderWidth: 1, borderColor: c.border }
-        : { ...shadow.sm }),
+      borderWidth: 1,
+      borderColor: isDark ? c.border : c.border + '80',
+      ...(isDark ? {} : shadow.md),
       padding: spacing.md,
       marginBottom: spacing.md,
       gap: spacing.sm,
     },
     cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     iconBox: {
-      width: 52, height: 52, borderRadius: radius.md,
+      width: 48, height: 48, borderRadius: radius.md,
       alignItems: 'center', justifyContent: 'center',
     },
-    iconText: { fontSize: 26 },
+    iconText: { fontSize: 24 },
     cardInfo: { flex: 1 },
-    cardTitle: { color: c.text, fontSize: fontSize.md, fontWeight: fontWeight.bold, marginBottom: 2 },
-    cardDesc: { color: c.textMuted, fontSize: fontSize.xs },
+    cardTitle: { color: c.text, fontSize: fontSize.md, fontWeight: fontWeight.bold, marginBottom: 2, lineHeight: 22, letterSpacing: -0.2 },
+    cardDesc: { color: c.textMuted, fontSize: fontSize.xs, lineHeight: 17 },
     chevron: { color: c.textMuted, fontSize: 24 },
 
-    statsRow: {
-      flexDirection: 'row', alignItems: 'center',
-      backgroundColor: c.bgElevated, borderRadius: radius.md, padding: spacing.sm,
-    },
-    stat: { flex: 1, alignItems: 'center' },
-    statVal: { color: c.text, fontSize: fontSize.md, fontWeight: fontWeight.black },
-    statLbl: { color: c.textFaint, fontSize: 10, marginTop: 1 },
-    statDiv: { width: 1, height: 24, backgroundColor: c.border },
-
     progressRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    progressTrack: { flex: 1, height: 4, backgroundColor: c.border, borderRadius: 2, overflow: 'hidden' },
-    progressFill: { height: 4, borderRadius: 2 },
+    progressTrack: { flex: 1, height: 6, backgroundColor: c.border, borderRadius: 3, overflow: 'hidden' },
+    progressFill: { height: 6, borderRadius: 3 },
     progressPct: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, minWidth: 32, textAlign: 'right' },
 
     upcomingBadge: {
-      borderRadius: radius.sm, borderWidth: 1,
-      paddingHorizontal: spacing.sm, paddingVertical: spacing.xs,
+      borderRadius: radius.full,
+      borderWidth: 1,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 3,
     },
-    upcomingText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+    upcomingText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold, letterSpacing: 0.3 },
 
     emptyCard: {
       backgroundColor: c.bgCard,
-      borderRadius: radius.lg,
-      ...(isDark
-        ? { borderWidth: 1, borderColor: c.border }
-        : { ...shadow.sm }),
-      padding: spacing.xxl,
+      borderRadius: radius.xl,
+      borderWidth: 1,
+      borderStyle: 'dashed',
+      borderColor: c.accent + opacity.tint,
+      padding: spacing.xl,
       alignItems: 'center',
       gap: spacing.sm,
     },
     emptyIcon: { fontSize: 48 },
-    emptyTitle: { color: c.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold },
-    emptySub: { color: c.textMuted, fontSize: fontSize.sm, textAlign: 'center' },
+    emptyTitle: { color: c.text, fontSize: fontSize.lg, fontWeight: fontWeight.bold, lineHeight: 24 },
+    emptySub: { color: c.textMuted, fontSize: fontSize.sm, textAlign: 'center', lineHeight: 20 },
     emptyBtn: {
       marginTop: spacing.sm,
       backgroundColor: c.accent,
-      borderRadius: radius.md,
+      borderRadius: radius.full,
       paddingHorizontal: spacing.xl,
-      paddingVertical: spacing.sm,
+      paddingVertical: spacing.sm + 2,
     },
     emptyBtnText: { color: c.white, fontSize: fontSize.sm, fontWeight: fontWeight.bold },
   });
